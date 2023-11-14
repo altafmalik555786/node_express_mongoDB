@@ -2,7 +2,8 @@ const handleCatchedError = ({
   error,
   at = "at position not defined",
   res = null,
-  status = 500
+  status = 500,
+  message = "Server error! Something went wrong."
 }) => {
   // console.log(" /////////////////////////////////////////////////////////////////////////////// ")
   console.log(" /////////////////////////////////////////////////////////////////////////////// ")
@@ -11,7 +12,10 @@ const handleCatchedError = ({
   // console.log(" /////////////////////////////////////////////////////////////////////////////// ")
 
   console.log(" -----------------> [At]:", at, "[Error]: ", error);
-  returnFailureResponse({ res, status, message: "Server error! Something went wrong." })
+  if (res) {
+    returnFailureResponse({ res, status, message })
+  }
+
 
   // console.log(" /////////////////////////////////////////////////////////////////////////////// ")
   console.log(" /////////////////////////////////////////////////////////////////////////////// ")
@@ -64,6 +68,11 @@ const checkValidation = (req, res, customBodyParams = null) => {
   })
 }
 
+const userRoles = {
+  isAdmin: "0",
+  user: "1"
+}
+
 module.exports = {
   handleCatchedError,
   successResponse,
@@ -72,5 +81,6 @@ module.exports = {
   returnFailureResponse,
   returnCatchedError,
   toCapitalCase,
-  checkValidation
+  checkValidation,
+  userRoles
 };

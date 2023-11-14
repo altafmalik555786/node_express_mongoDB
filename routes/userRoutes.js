@@ -7,7 +7,7 @@ require("dotenv").config();
 const app = express();
 const router = express.Router();
 const bcrypt = require("bcrypt");
-const { returnFailureResponse, handleCatchedError, returnSuccessResponse,  checkValidation } = require("../utils/helper");
+const { returnFailureResponse, handleCatchedError, returnSuccessResponse, checkValidation } = require("../utils/helper");
 const saltRounds = 10;
 const salt = bcrypt.genSaltSync(saltRounds);
 // Secret key for signing and verifying tokens
@@ -16,23 +16,19 @@ const secretKey = process.env.secretKey;
 // Middleware function to parse request body
 app.use(express.json());
 
-//Login User API
 
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
   const user = await Model.findOne({ email });
-  if (!email || !password) {
-    returnFailureResponse({ res, message: "Please provide all email and password." })
-  }
+  checkValidation(req, res, { email, password } )
   if (!user) {
     returnFailureResponse({ res, status: 404, message: "Email is invalid" });
   }
   const isPasswordMatch = await bcrypt.compare(password, user.password);
-
   try {
     if (user.email && isPasswordMatch) {
       const token = jwt.sign({ name: user.name, id: user._id, role: user.role }, `${secretKey}`, {
-        expiresIn: "1h",
+        expiresIn: "100h",
       });
       app.set("secret", secretKey);
       const data = {
@@ -52,21 +48,18 @@ router.post("/login", async (req, res) => {
 // ADD USER
 router.post("/register", async (req, res) => {
   try {
-
     const { password, email, role } = req.body;
     checkValidation(req, res, { password, email, role })
     const existingUser = await Model.findOne({ email });
     if (existingUser) {
       returnFailureResponse({ res, message: "Email already taken" })
     }
-
     const hash = bcrypt.hashSync(password, salt);
     const data = new Model({
       password: hash,
       email,
       role
     });
-
     await data.save();
     returnSuccessResponse({ res, message: "User registered successfully." })
   } catch (error) {
