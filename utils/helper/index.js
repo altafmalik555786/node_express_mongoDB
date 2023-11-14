@@ -13,7 +13,7 @@ const handleCatchedError = ({
 
   console.log(" -----------------> [At]:", at, "[Error]: ", error);
   if (res) {
-    returnFailureResponse({ res, status, message })
+    sendFailureResponse({ res, status, message })
   }
 
 
@@ -45,19 +45,19 @@ const failureResponse = ({ data = null, message = null }) => {
   }
 }
 
-const returnSuccessResponse = ({ res = null, status = 200, data = null, message = null }) => {
+const sendSuccessResponse = ({ res = null, status = 200, data = null, message = null }) => {
   if (res) {
     res.status(status).send(successResponse({ data, message }))
   } else {
-    throw new Error('Res is null, please send res to returnSuccessResponse({res: ??})')
+    throw new Error('Res is null, please send res key to sendSuccessResponse({res: ??})')
   }
 }
 
-const returnFailureResponse = ({ res = null, status = 400, message = null, }) => {
+const sendFailureResponse = ({ res = null, status = 400, message = null, }) => {
   if (res) {
     res.status(status).json(failureResponse({ message }))
   } else {
-    throw new Error('Res is null, please send res to returnFailureResponse({res: ??})')
+    throw new Error('Res is null, please send res key to sendFailureResponse({res: ??})')
   }
 }
 
@@ -69,24 +69,20 @@ const checkValidation = (req, res, customBodyParams = null) => {
   const paramsArr = Object.entries(customBodyParams || req.body).map(([key, value]) => ({ key, value }));
   paramsArr?.forEach((item) => {
     if (!item?.value) {
-      return returnFailureResponse({ res, message: `${toCapitalCase(item?.key)} is required` })
+      return sendFailureResponse({ res, message: `${toCapitalCase(item?.key)} is required` })
     }
   })
 }
 
-const userRoles = {
-  isAdmin: "0",
-  user: "1"
-}
 
 module.exports = {
   handleCatchedError,
   successResponse,
   failureResponse,
-  returnSuccessResponse,
-  returnFailureResponse,
+  sendSuccessResponse,
+  sendFailureResponse,
   returnCatchedError,
   toCapitalCase,
-  checkValidation,
-  userRoles
+  checkValidation
+  
 };

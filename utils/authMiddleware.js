@@ -1,16 +1,17 @@
 const jwt = require('jsonwebtoken');
-const { returnFailureResponse, handleCatchedError, userRoles } = require('./helper');
+const { sendFailureResponse, handleCatchedError } = require('./helper');
+const { userRoles } = require('./json');
 const secretKey = process.env.secretKey;
 
 const authMiddleware = (req, res, next) => {
   try {
     const token = req?.headers?.authorization?.split(' ')[1]; // Authorization: 'Bearer TOKEN'
     if (!token) {
-      return returnFailureResponse({ res, status: 404, message: "Authentication failed! Token not found." })
+      return sendFailureResponse({ res, status: 404, message: "Authentication failed! Token not found." })
     }
     jwt.verify(token, secretKey, function (err, decoded) {
       if (err) {
-        return returnFailureResponse({ res, message: 'Invalid token!' });
+        return sendFailureResponse({ res, message: 'Invalid token!' });
       } else {
         req.decoded = decoded;
         req.authenticated = true;
@@ -26,17 +27,17 @@ const isAdminMiddleware = async (req, res, next) => {
   try {
     const token = req?.headers?.authorization?.split(' ')[1]; // Authorization: 'Bearer TOKEN'
     if (!token) {
-      return returnFailureResponse({ res, status: 404, message: "Authentication failed! Token not found." })
+      return sendFailureResponse({ res, status: 404, message: "Authentication failed! Token not found." })
     }
     jwt.verify(token, secretKey, function (err, decoded) {
       if (err) {
-        return returnFailureResponse({ res, message: 'Authentication failed! Invalid token!' });
+        return sendFailureResponse({ res, message: 'Authentication failed! Invalid token!' });
       } else {
         if (decoded?.role === userRoles?.isAdmin) {
           req.authenticated = true;
           next();
         } else {
-          returnFailureResponse({ res, message: "You don not have admin access" })
+          sendFailureResponse({ res, message: "You don not have admin access" })
         }
       }
     });

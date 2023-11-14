@@ -7,7 +7,7 @@ require("dotenv").config();
 const app = express();
 const router = express.Router();
 const bcrypt = require("bcrypt");
-const { returnFailureResponse, handleCatchedError, returnSuccessResponse, checkValidation } = require("../utils/helper");
+const { sendFailureResponse, handleCatchedError, sendSuccessResponse, checkValidation } = require("../utils/helper");
 const saltRounds = 10;
 const salt = bcrypt.genSaltSync(saltRounds);
 // Secret key for signing and verifying tokens
@@ -22,7 +22,7 @@ router.post("/login", async (req, res) => {
   const user = await Model.findOne({ email });
   checkValidation(req, res, { email, password })
   if (!user) {
-    returnFailureResponse({ res, status: 404, message: "Email is invalid" });
+    sendFailureResponse({ res, status: 404, message: "Email is invalid" });
   }
   const isPasswordMatch = await bcrypt.compare(password, user.password);
   try {
@@ -38,7 +38,7 @@ router.post("/login", async (req, res) => {
       }
       return res.status(200).json(data);
     } else {
-      returnFailureResponse({ res, message: "Invalid credentials" });
+      sendFailureResponse({ res, message: "Invalid credentials" });
     }
   } catch (error) {
     handleCatchedError({ error })
@@ -52,7 +52,7 @@ router.post("/register", async (req, res) => {
     checkValidation(req, res, { password, email, role })
     const existingUser = await Model.findOne({ email });
     if (existingUser) {
-      returnFailureResponse({ res, message: "Email already taken" })
+      sendFailureResponse({ res, message: "Email already taken" })
     }
     const hash = bcrypt.hashSync(password, salt);
     const data = new Model({
@@ -61,7 +61,7 @@ router.post("/register", async (req, res) => {
       role
     });
     await data.save();
-    returnSuccessResponse({ res, message: "User registered successfully." })
+    sendSuccessResponse({ res, message: "User registered successfully." })
   } catch (error) {
     handleCatchedError({ res, error, at: "/register" })
   }
@@ -71,7 +71,7 @@ router.post("/register", async (req, res) => {
 router.get("/getAllUsers", authMiddleware, isAdminMiddleware, async (req, res) => {
   try {
     const data = await Model.find();
-    returnSuccessResponse({ data })
+    sendSuccessResponse({ res, data })
   } catch (error) {
     handleCatchedError({ res, error, at: "/getAllUsers" })
   }
