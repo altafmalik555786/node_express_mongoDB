@@ -2,77 +2,75 @@ const express = require("express");
 const jwt = require("jsonwebtoken");
 const Model = require("../model/user");
 const mongoose = require('mongoose');
-const {authMiddleware, isAdminMiddleware} = require('../utils/authMiddleware');
+const { authMiddleware, isAdminMiddleware } = require('../utils/authMiddleware');
 require("dotenv").config();
 const app = express();
 const router = express.Router();
 const bcrypt = require("bcrypt");
+const { returnFailureResponse, handleCatchedError, returnSuccessResponse,  checkValidation } = require("../utils/helper");
 const saltRounds = 10;
 const salt = bcrypt.genSaltSync(saltRounds);
 // Secret key for signing and verifying tokens
 const secretKey = process.env.secretKey;
 
-
 // Middleware function to parse request body
 app.use(express.json());
-
 
 //Login User API
 
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
   const user = await Model.findOne({ email });
-    if (!email || !password) {
-    return res.status(404).json({ message: "Credentials not be found" });
+  if (!email || !password) {
+    returnFailureResponse({ res, message: "Please provide all email and password." })
   }
   if (!user) {
-    return res.status(404).json({ message: "email is invalid" });
+    returnFailureResponse({ res, status: 404, message: "Email is invalid" });
   }
+  const isPasswordMatch = await bcrypt.compare(password, user.password);
+
   try {
-    const isPasswordMatch = await bcrypt.compare(password, user.password);
-    // Generate a token and send it back to the client
-    const token = jwt.sign({ name: user.name, id: user._id, role:user.role }, `${secretKey}`, {
-      expiresIn: "1h",
-    });
-    app.set("secret", secretKey);
     if (user.email && isPasswordMatch) {
-      return res.status(200).json({success: true, token: token, result:{id:user._id,email : user.email, name:user.name, role:user.role}});
+      const token = jwt.sign({ name: user.name, id: user._id, role: user.role }, `${secretKey}`, {
+        expiresIn: "1h",
+      });
+      app.set("secret", secretKey);
+      const data = {
+        success: true,
+        token: token,
+        data: user
+      }
+      return res.status(200).json(data);
     } else {
-      return res.status(404).json({ message: "Invalid credentials" });
+      returnFailureResponse({ res, message: "Invalid credentials" });
     }
   } catch (error) {
-    res.status(500).json({ message: "Internal server error" });
+    handleCatchedError({ error })
   }
 });
 
 // ADD USER
 router.post("/register", async (req, res) => {
   try {
-    const {  password, email  } = req.body;
 
-    // Check if all required fields are provided
-    if (!password || !email) {
-      return res.status(400).json({ message: "Please provide all data" });
-    }
-
-    // Check if the email already exists in the database
+    const { password, email, role } = req.body;
+    checkValidation(req, res, { password, email, role })
     const existingUser = await Model.findOne({ email });
-
     if (existingUser) {
-      return res.status(400).json({ message: "Email already taken", success: false });
+      returnFailureResponse({ res, message: "Email already taken" })
     }
 
     const hash = bcrypt.hashSync(password, salt);
     const data = new Model({
       password: hash,
-      email
+      email,
+      role
     });
 
     await data.save();
-    res.json({ message: "User registered successfully", success: true });
+    returnSuccessResponse({ res, message: "User registered successfully." })
   } catch (error) {
-    console.log("error", error)
-    res.status(500).json({ message: "Something went wrong", success: false });
+    handleCatchedError({ res, error, at: "/register" })
   }
 });
 
@@ -80,7 +78,7 @@ router.post("/register", async (req, res) => {
 router.get("/getAllUsers", authMiddleware, isAdminMiddleware, async (req, res) => {
   try {
     const data = await Model.find();
-    res.status(200).json({results:data, success:true});
+    res.status(200).json({ results: data, success: true });
   } catch (error) {
     res.status(400).json({ message: error });
   }
@@ -112,7 +110,7 @@ router.delete("/deleteUser/:id", authMiddleware, isAdminMiddleware, async (req, 
     if (user) {
       // User found, perform deletion
       const deletedUser = await Model.findByIdAndDelete(userId);
-      return res.status(200).send({success:true, message: `${deletedUser.name} has been deleted.` });
+      return res.status(200).send({ success: true, message: `${deletedUser.name} has been deleted.` });
     } else {
       // User not found
       return res.status(404).send({ message: 'User not found' });

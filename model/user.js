@@ -8,6 +8,10 @@ const dataSchema = new mongoose.Schema({
     password: {
         required: true,
         type: String
+    },
+    role: {
+        required: true,
+        type: String
     }
 })
 
