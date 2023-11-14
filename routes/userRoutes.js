@@ -78,20 +78,20 @@ router.get("/getAllUsers", authMiddleware, isAdminMiddleware, async (req, res) =
 });
 
 // Update User
-router.put("/updateUser/:id", authMiddleware, async (req, res) => {
+router.put("/user/:id", authMiddleware, async (req, res) => {
   try {
     const { id } = req.params;
     const updatedData = req.body;
     const options = { new: true };
-    const result = await Model.findByIdAndUpdate(id, updatedData, options);
-    res.status(200).send(result);
+    const data = await Model.findByIdAndUpdate(id, updatedData, options);
+    sendSuccessResponse({ res, data })
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    handleCatchedError({ res, error, at: "/updateUser/:id" })
   }
 });
 
 // Delete specific user method
-router.delete("/deleteUser/:id", authMiddleware, isAdminMiddleware, async (req, res) => {
+router.delete("/user/:id", authMiddleware, isAdminMiddleware, async (req, res) => {
   try {
     const userId = req.params.id;
     if (!mongoose.Types.ObjectId.isValid(userId)) {
