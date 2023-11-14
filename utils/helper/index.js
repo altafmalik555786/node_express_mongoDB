@@ -48,11 +48,17 @@ const failureResponse = ({ data = null, message = null }) => {
 const returnSuccessResponse = ({ res = null, status = 200, data = null, message = null }) => {
   if (res) {
     res.status(status).send(successResponse({ data, message }))
+  } else {
+    throw new Error('Res is null, please send res to returnSuccessResponse({res: ??})')
   }
 }
 
 const returnFailureResponse = ({ res = null, status = 400, message = null, }) => {
-  res.status(status).json(failureResponse({ message }))
+  if (res) {
+    res.status(status).json(failureResponse({ message }))
+  } else {
+    throw new Error('Res is null, please send res to returnFailureResponse({res: ??})')
+  }
 }
 
 const toCapitalCase = (string) => {

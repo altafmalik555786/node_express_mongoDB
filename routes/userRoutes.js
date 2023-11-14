@@ -20,7 +20,7 @@ app.use(express.json());
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
   const user = await Model.findOne({ email });
-  checkValidation(req, res, { email, password } )
+  checkValidation(req, res, { email, password })
   if (!user) {
     returnFailureResponse({ res, status: 404, message: "Email is invalid" });
   }
@@ -71,9 +71,9 @@ router.post("/register", async (req, res) => {
 router.get("/getAllUsers", authMiddleware, isAdminMiddleware, async (req, res) => {
   try {
     const data = await Model.find();
-    res.status(200).json({ results: data, success: true });
+    returnSuccessResponse({ data })
   } catch (error) {
-    res.status(400).json({ message: error });
+    handleCatchedError({ res, error, at: "/getAllUsers" })
   }
 });
 
