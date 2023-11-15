@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-
+const { NOT_FOUND_MESSAGE } = require('../const');
 
 
 const handleCatchedError = ({
@@ -31,6 +31,20 @@ const handleCatchedError = ({
 const returnCatchedError = ({ res = null, status = 400, error, at = "at position not defined" }) => {
   handleCatchedError({ at, error })
   res.status(status).json(error)
+}
+
+const isNotFoundByID = async ({ res, model, id, entity = "" }) => {
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    sendFailureResponse({ res, message: `Invalid ${entity} Object ID, Id dont have type pattern.` })
+    return true
+  } else {
+    const existObj = await model.findById(id);
+    if (!existObj) {
+      sendFailureResponse({ res, message: NOT_FOUND_MESSAGE(entity), status: 404 });
+      return true
+    }
+  }
+  return false
 }
 
 const successResponse = ({ data = null, message = null }) => {
@@ -99,16 +113,6 @@ const compareObjectsDeepEqual = (obj1, obj2) => {
   return true;
 }
 
-const notFoundByID = async ({ Model, entityName = "", id }) => {
-  if (!mongoose.Types.ObjectId.isValid(id)) {
-    return sendFailureResponse({ res, message: `Invalid ${entityName} Object ID, Id dont have type pattern.` })
-  }
-  const existObj = await Model.findById(id);
-  if (!existObj) {
-    return sendFailureResponse({ res, message: "User not found", status: 404 });
-  }
-}
-
 
 module.exports = {
   handleCatchedError,
@@ -120,5 +124,5 @@ module.exports = {
   toCapitalCase,
   checkValidation,
   compareObjectsDeepEqual,
-  notFoundByID,
+  isNotFoundByID,
 };

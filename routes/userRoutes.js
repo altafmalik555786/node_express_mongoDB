@@ -7,8 +7,9 @@ require("dotenv").config();
 const app = express();
 const router = express.Router();
 const bcrypt = require("bcrypt");
-const { sendFailureResponse, handleCatchedError, sendSuccessResponse, checkValidation, compareObjectsDeepEqual } = require("../utils/helper");
+const { sendFailureResponse, handleCatchedError, sendSuccessResponse, checkValidation, compareObjectsDeepEqual, isNotFoundByID } = require("../utils/helper");
 const { json } = require("body-parser");
+const { UPDATED_MESSAGE } = require("../utils/const");
 const saltRounds = 10;
 const salt = bcrypt.genSaltSync(saltRounds);
 // Secret key for signing and verifying tokens
@@ -83,8 +84,8 @@ router.put("/user/:id", authMiddleware, async (req, res) => {
   try {
     const { id } = req.params;
     checkValidation(req, res, { email: req.body.email, password: req.body.password })
+    isNotFoundByID({ res, model: Model, id, entityName: "User" })
 
-    
     // const user = await Model.findOne({ email: req.body.email });
     // delete user._id
     // delete user.__v
@@ -94,13 +95,13 @@ router.put("/user/:id", authMiddleware, async (req, res) => {
     // }
     // console.log("user out", user)
 
-
     const updatedData = req.body;
     delete req.body.password
     const options = { new: true };
     const data = await Model.findByIdAndUpdate(id, updatedData, options);
+    sendSuccessResponse({ res, data, message: UPDATED_MESSAGE("User") })
 
-    sendSuccessResponse({ res, data })
+
   } catch (error) {
     handleCatchedError({ res, error, at: "/user/:id" })
   }
