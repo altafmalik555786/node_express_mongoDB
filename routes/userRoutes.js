@@ -7,7 +7,8 @@ require("dotenv").config();
 const app = express();
 const router = express.Router();
 const bcrypt = require("bcrypt");
-const { sendFailureResponse, handleCatchedError, sendSuccessResponse, checkValidation } = require("../utils/helper");
+const { sendFailureResponse, handleCatchedError, sendSuccessResponse, checkValidation, compareObjectsDeepEqual } = require("../utils/helper");
+const { json } = require("body-parser");
 const saltRounds = 10;
 const salt = bcrypt.genSaltSync(saltRounds);
 // Secret key for signing and verifying tokens
@@ -68,12 +69,12 @@ router.post("/register", async (req, res) => {
 });
 
 //Get all Users
-router.get("/getAllUsers", authMiddleware, isAdminMiddleware, async (req, res) => {
+router.get("/user", authMiddleware, isAdminMiddleware, async (req, res) => {
   try {
     const data = await Model.find();
     sendSuccessResponse({ res, data })
   } catch (error) {
-    handleCatchedError({ res, error, at: "/getAllUsers" })
+    handleCatchedError({ res, error, at: "/user" })
   }
 });
 
@@ -81,12 +82,27 @@ router.get("/getAllUsers", authMiddleware, isAdminMiddleware, async (req, res) =
 router.put("/user/:id", authMiddleware, async (req, res) => {
   try {
     const { id } = req.params;
+    checkValidation(req, res, { email: req.body.email, password: req.body.password })
+
+    
+    // const user = await Model.findOne({ email: req.body.email });
+    // delete user._id
+    // delete user.__v
+
+    // if (compareObjectsDeepEqual(user, req.body)) {
+    //   console.log("user in", user)
+    // }
+    // console.log("user out", user)
+
+
     const updatedData = req.body;
+    delete req.body.password
     const options = { new: true };
     const data = await Model.findByIdAndUpdate(id, updatedData, options);
+
     sendSuccessResponse({ res, data })
   } catch (error) {
-    handleCatchedError({ res, error, at: "/updateUser/:id" })
+    handleCatchedError({ res, error, at: "/user/:id" })
   }
 });
 
@@ -103,7 +119,7 @@ router.delete("/user/:id", authMiddleware, isAdminMiddleware, async (req, res) =
     if (user) {
       // User found, perform deletion
       const deletedUser = await Model.findByIdAndDelete(userId);
-      return res.status(200).send({ success: true, message: `${deletedUser.name} has been deleted.` });
+      return res.status(200).send({ success: true, message: `${deletedUser.name} has been deleted successfully.` });
     } else {
       // User not found
       return res.status(404).send({ message: 'User not found' });

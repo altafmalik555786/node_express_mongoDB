@@ -1,3 +1,7 @@
+const mongoose = require('mongoose');
+
+
+
 const handleCatchedError = ({
   error,
   at = "at position not defined",
@@ -74,6 +78,37 @@ const checkValidation = (req, res, customBodyParams = null) => {
   })
 }
 
+const compareObjectsDeepEqual = (obj1, obj2) => {
+  if (obj1 === obj2) return true;
+
+  if (typeof obj1 !== 'object' || obj1 === null || typeof obj2 !== 'object' || obj2 === null) {
+    return false;
+  }
+
+  let keys1 = Object.keys(obj1);
+  let keys2 = Object.keys(obj2);
+
+  if (keys1.length !== keys2.length) return false;
+
+  for (let key of keys1) {
+    if (!keys2.includes(key) || !deepEqual(obj1[key], obj2[key])) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+const notFoundByID = async ({ Model, entityName = "", id }) => {
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return sendFailureResponse({ res, message: `Invalid ${entityName} Object ID, Id dont have type pattern.` })
+  }
+  const existObj = await Model.findById(id);
+  if (!existObj) {
+    return sendFailureResponse({ res, message: "User not found", status: 404 });
+  }
+}
+
 
 module.exports = {
   handleCatchedError,
@@ -83,6 +118,7 @@ module.exports = {
   sendFailureResponse,
   returnCatchedError,
   toCapitalCase,
-  checkValidation
-  
+  checkValidation,
+  compareObjectsDeepEqual,
+  notFoundByID,
 };
