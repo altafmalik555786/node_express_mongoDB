@@ -1,4 +1,5 @@
 const constants = {
+    ERROR_SERVER_ERROR: 'SERVER_ERROR',
     ERROR_INVALID_ID: 'INVALID_ID',
     ERROR_RECORD_NOT_FOUND: 'RECORD_NOT_FOUND',
     DELETED_MESSAGE: (entityName = "Record") => {

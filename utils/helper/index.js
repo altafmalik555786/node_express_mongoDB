@@ -1,7 +1,6 @@
 const mongoose = require('mongoose');
 const { NOT_FOUND_MESSAGE, ERROR_INVALID_ID, ERROR_RECORD_NOT_FOUND } = require('../const');
 
-
 const handleCatchedError = ({
   error,
   at = "at position not defined",
@@ -52,7 +51,6 @@ const successResponse = ({ data = undefined, message = null }) => {
   if (data === null) {
     throw new Error('error')
   }
-
   return {
     success: true,
     message,
@@ -120,7 +118,6 @@ const compareObjectsDeepEqual = (obj1, obj2) => {
 
 module.exports = {
   handleCatchedError,
-  updateModel,
   successResponse,
   failureResponse,
   sendSuccessResponse,
