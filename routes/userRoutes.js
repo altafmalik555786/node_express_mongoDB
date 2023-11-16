@@ -83,7 +83,7 @@ router.get("/user", authMiddleware, isAdminMiddleware, async (req, res) => {
 router.put("/user/:id", authMiddleware, async (req, res) => {
   try {
     const { id } = req.params;
-    // checkValidation(req, res, { email: req.body.email, password: req.body.password })
+    checkValidation(req, res, { email: req.body.email, password: req.body.password })
     await isNotFoundByID({ res, model: Model, id, entity: "User" })
     // console.log('isNotFoundByID({ res, model: Model, id, entityName: "User" })()', )
 
