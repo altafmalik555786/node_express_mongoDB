@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const { NOT_FOUND_MESSAGE } = require('../const');
+const { NOT_FOUND_MESSAGE, ERROR_INVALID_ID, ERROR_RECORD_NOT_FOUND } = require('../const');
 
 
 const handleCatchedError = ({
@@ -16,10 +16,12 @@ const handleCatchedError = ({
   // console.log(" /////////////////////////////////////////////////////////////////////////////// ")
 
   console.log(" -----------------> [At]:", at, "[Error]: ", error);
-  if (res) {
-    sendFailureResponse({ res, status, message })
-  }
 
+  if (!(error.message === ERROR_INVALID_ID) && !(error.message === ERROR_RECORD_NOT_FOUND)) {
+    if (res) {
+      sendFailureResponse({ res, status, message })
+    }
+  }
 
   // console.log(" /////////////////////////////////////////////////////////////////////////////// ")
   console.log(" /////////////////////////////////////////////////////////////////////////////// ")
@@ -36,18 +38,21 @@ const returnCatchedError = ({ res = null, status = 400, error, at = "at position
 const isNotFoundByID = async ({ res, model, id, entity = "" }) => {
   if (!mongoose.Types.ObjectId.isValid(id)) {
     sendFailureResponse({ res, message: `Invalid ${entity} Object ID, Id dont have type pattern.` })
-    return true
+    throw new Error(ERROR_INVALID_ID)
   } else {
     const existObj = await model.findById(id);
     if (!existObj) {
       sendFailureResponse({ res, message: NOT_FOUND_MESSAGE(entity), status: 404 });
-      return true
+      throw new Error(ERROR_RECORD_NOT_FOUND)
     }
   }
-  return false
 }
 
-const successResponse = ({ data = null, message = null }) => {
+const successResponse = ({ data = undefined, message = null }) => {
+  if (data === null) {
+    throw new Error('error')
+  }
+
   return {
     success: true,
     message,
@@ -55,15 +60,14 @@ const successResponse = ({ data = null, message = null }) => {
   }
 }
 
-const failureResponse = ({ data = null, message = null }) => {
+const failureResponse = ({ message = null }) => {
   return {
     success: false,
     message,
-    data,
   }
 }
 
-const sendSuccessResponse = ({ res = null, status = 200, data = null, message = null }) => {
+const sendSuccessResponse = ({ res = null, status = 200, data = undefined, message = null }) => {
   if (res) {
     res.status(status).send(successResponse({ data, message }))
   } else {
@@ -116,6 +120,7 @@ const compareObjectsDeepEqual = (obj1, obj2) => {
 
 module.exports = {
   handleCatchedError,
+  updateModel,
   successResponse,
   failureResponse,
   sendSuccessResponse,
