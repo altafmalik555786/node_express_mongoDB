@@ -83,7 +83,7 @@ router.get("/user", authMiddleware, isAdminMiddleware, async (req, res) => {
 router.put("/user/:id", authMiddleware, async (req, res) => {
   try {
     const { id } = req.params;
-    checkValidation(req, res, { email: req.body.email, password: req.body.password })
+    checkValidation({ req, res, model: Model, requiredFields: ['email', 'password', 'firstName'] })
     await isNotFoundByID({ res, model: Model, id, entity: "User" })
 
     // const user = await Model.findOne({ email: req.body.email });
@@ -112,7 +112,7 @@ router.put("/user/:id", authMiddleware, async (req, res) => {
     const data = await Model.findByIdAndUpdate(id, updatedData, options);
     sendSuccessResponse({ res, data, message: UPDATED_MESSAGE("User") })
   } catch (error) {
-    handleCatchedError({ res, error, at: "/user/:id"})
+    handleCatchedError({ res, error, at: "/user/:id" })
   }
 });
 
