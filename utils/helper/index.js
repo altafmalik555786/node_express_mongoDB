@@ -85,11 +85,17 @@ const toCapitalCase = (string) => {
   return string?.charAt(0).toUpperCase() + string.slice(1)
 }
 
-const checkValidation = (req, res, customBodyParams = null) => {
-  const paramsArr = Object.entries(customBodyParams || req.body).map(([key, value]) => ({ key, value }));
+const checkValidation = (req, res, requiredFields = null) => {
+  const paramsArr = Object.entries(requiredFields || req.body).map(([key, value]) => ({ key, value }));
   paramsArr?.forEach((item) => {
+    if (requiredFields) {
+      if (!Object.keys(req.body)?.includes(item.key)) {
+        sendFailureResponse({ res, message: `${toCapitalCase(item?.key)} is required` })
+        throw new Error(ERROR_SERVER_ERROR)
+      }
+    }
     if (!item?.value) {
-      sendFailureResponse({ res, message: `${toCapitalCase(item?.key)} is required` })
+      sendFailureResponse({ res, message: `${toCapitalCase(item?.key)} cannot be not null or undefined` })
       throw new Error(ERROR_SERVER_ERROR)
     }
   })

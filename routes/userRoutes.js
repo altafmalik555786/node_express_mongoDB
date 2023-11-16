@@ -85,7 +85,6 @@ router.put("/user/:id", authMiddleware, async (req, res) => {
     const { id } = req.params;
     checkValidation(req, res, { email: req.body.email, password: req.body.password })
     await isNotFoundByID({ res, model: Model, id, entity: "User" })
-    // console.log('isNotFoundByID({ res, model: Model, id, entityName: "User" })()', )
 
     // const user = await Model.findOne({ email: req.body.email });
     // delete user._id
@@ -111,7 +110,6 @@ router.put("/user/:id", authMiddleware, async (req, res) => {
     delete req.body.password
     const options = { new: true };
     const data = await Model.findByIdAndUpdate(id, updatedData, options);
-    
     sendSuccessResponse({ res, data, message: UPDATED_MESSAGE("User") })
   } catch (error) {
     handleCatchedError({ res, error, at: "/user/:id"})
