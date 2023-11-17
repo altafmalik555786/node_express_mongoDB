@@ -7,7 +7,7 @@ require("dotenv").config();
 const app = express();
 const router = express.Router();
 const bcrypt = require("bcrypt");
-const { sendFailureResponse, handleCatchedError, sendSuccessResponse, checkValidation, compareObjectsDeepEqual, isNotFoundByID, updateModel } = require("../utils/helper");
+const { sendFailureResponse, handleCatchedError, sendSuccessResponse, checkValidation, compareObjectsDeepEqual, isNotFoundByID, isAlreadyExistById } = require("../utils/helper");
 const { json } = require("body-parser");
 const { UPDATED_MESSAGE } = require("../utils/const");
 const saltRounds = 10;
@@ -85,10 +85,8 @@ router.put("/user/:id", authMiddleware, async (req, res) => {
     const { id } = req.params;
     checkValidation({ req, res, model: Model, requiredFields: ['email', 'password'] })
     await isNotFoundByID({ res, model: Model, id, entity: "User" })
+    await isAlreadyExistById({ req, res, model: Model, id, bodyData: { email: req.body.email }})
 
-    // const user = await Model.findOne({ email: req.body.email });
-    // delete user._id
-    // delete user.__v
 
     // if (compareObjectsDeepEqual(user, req.body)) {
     //   console.log("user in", user)

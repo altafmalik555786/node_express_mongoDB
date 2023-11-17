@@ -47,6 +47,49 @@ const isNotFoundByID = async ({ res, model, id, entity = "" }) => {
   }
 }
 
+const isAlreadyExistById = async ({ req, res, model, id, bodyData }) => {
+  const incomingData = bodyData || req.body;
+
+  const findDataByID = await model.findById(id)
+  const intersectedObj = findIntersectionObjects(findDataByID, incomingData)
+
+  delete findDataByID._id
+  delete findDataByID.__v
+
+  console.log("intersectedObj[=========================", intersectedObj)
+
+  if (compareObjectsDeepEqual(intersectedObj, req.body)) {
+    console.log("findDataByID in", findDataByID)
+  }
+  console.log("findDataByID out", findDataByID)
+
+
+}
+
+const findIntersectionObjects = (obj1, obj2) => {
+  const result = {};
+
+  const deepIntersection = (source, target, currentKey = '') => {
+      for (const key in source) {
+          const newKey = currentKey ? `${currentKey}.${key}` : key;
+
+          if (target.hasOwnProperty(key)) {
+              if (typeof source[key] === 'object' && typeof target[key] === 'object') {
+                  result[newKey] = {};
+                  deepIntersection(source[key], target[key], newKey);
+              } else if (source[key] === target[key]) {
+                  result[newKey] = source[key];
+              }
+          }
+      }
+  };
+
+  deepIntersection(obj1, obj2);
+
+  return result;
+};
+
+
 const successResponse = ({ data = undefined, message = null }) => {
   if (data === null) {
     throw new Error('error')
@@ -146,4 +189,6 @@ module.exports = {
   checkValidation,
   compareObjectsDeepEqual,
   isNotFoundByID,
+  isAlreadyExistById,
+  findIntersectionObjects,
 };
