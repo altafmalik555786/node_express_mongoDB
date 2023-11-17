@@ -7,7 +7,7 @@ require("dotenv").config();
 const app = express();
 const router = express.Router();
 const bcrypt = require("bcrypt");
-const { sendFailureResponse, handleCatchedError, sendSuccessResponse, checkValidation, compareObjectsDeepEqual, isNotFoundByID, isAlreadyExistById } = require("../utils/helper");
+const { sendFailureResponse, handleCatchedError, sendSuccessResponse, checkValidation, handlePutRequest } = require("../utils/helper");
 const { json } = require("body-parser");
 const { UPDATED_MESSAGE } = require("../utils/const");
 const saltRounds = 10;
@@ -22,7 +22,7 @@ app.use(express.json());
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
   const user = await Model.findOne({ email });
-  checkValidation(req, res, { email, password })
+  checkValidation({req, res, model: Model, bodyData: { email, password }})
   if (!user) {
     sendFailureResponse({ res, status: 404, message: "Email is invalid" });
   }
@@ -51,7 +51,7 @@ router.post("/login", async (req, res) => {
 router.post("/register", async (req, res) => {
   try {
     const { password, email, role } = req.body;
-    checkValidation(req, res, { password, email, role })
+    checkValidation({req, res, model: Model, bodyData: { password, email, role }})
     const existingUser = await Model.findOne({ email });
     if (existingUser) {
       sendFailureResponse({ res, message: "Email already taken" })
@@ -83,31 +83,10 @@ router.get("/user", authMiddleware, isAdminMiddleware, async (req, res) => {
 router.put("/user/:id", authMiddleware, async (req, res) => {
   try {
     const { id } = req.params;
-    checkValidation({ req, res, model: Model, requiredFields: ['email', 'password'] })
-    await isNotFoundByID({ res, model: Model, id, entity: "User" })
-    await isAlreadyExistById({ req, res, model: Model, id, entity: "User", bodyData: { email: req.body.email }})
-
-
-    // if (compareObjectsDeepEqual(user, req.body)) {
-    //   console.log("user in", user)
-    // }
-    // console.log("user out", user)
-
-    // const updatedData = req.body;
-    // delete req.body.password
-    // const data = await updateModel({ model: Model, id, bodyData: updatedData }, updatedData, {
-    //   new: true,
-    // }, (error, update) => {
-    //   console.log("=================================", "error", error, "update", update)
-    // })();
-    // sendSuccessResponse({ res, data, message: UPDATED_MESSAGE("User") })
-
-    // throw new Error('error')
-
-    const updatedData = req.body;
     delete req.body.password
+    await handlePutRequest({req, res, model: Model, entity: 'User', bodyData: {...req.body} })
     const options = { new: true };
-    const data = await Model.findByIdAndUpdate(id, updatedData, options);
+    const data = await Model.findByIdAndUpdate(id, req.body, options);
     sendSuccessResponse({ res, data, message: UPDATED_MESSAGE("User") })
   } catch (error) {
     handleCatchedError({ res, error, at: "/user/:id" })

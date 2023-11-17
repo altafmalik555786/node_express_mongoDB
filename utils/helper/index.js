@@ -57,6 +57,48 @@ const isAlreadyExistById = async ({ req, res, model, id, bodyData, entity = "Rec
   }
 }
 
+const checkValidation = ({ req, res, model, requiredFields = [], bodyData = null }) => {
+  const allowedKeys = Object?.keys(model?.schema.tree);
+  const incomingData = bodyData || req.body;
+
+  if (Object.keys(req.body).length === 0) {
+    sendFailureResponse({ res, message: 'Null payload data' })
+    throw new Error(ERROR_SERVER_ERROR)
+  }
+
+  if (requiredFields?.length > 0) {
+    const remainingRequiredKeys = requiredFields.filter(element => !Object.keys(incomingData).includes(element))
+    remainingRequiredKeys?.length > 0 && remainingRequiredKeys?.forEach((item) => {
+      sendFailureResponse({ res, message: `${toCapitalCase(item)} is required` })
+      throw new Error(ERROR_SERVER_ERROR)
+    })
+  }
+
+  const invalidKeys = Object.keys(incomingData).filter(key => !allowedKeys.includes(key));
+  if (invalidKeys.length > 0) {
+    sendFailureResponse({ res, message: `${invalidKeys?.map(item => ` ${item}`)} ${invalidKeys?.length > 1 ? 'are' : 'is'} invalid ${invalidKeys?.length > 1 ? 'keys' : 'key'}` });
+    throw new Error(ERROR_SERVER_ERROR)
+  }
+
+  const paramsArr = Object.entries(incomingData).map(([key, value]) => ({ key, value }));
+
+  paramsArr?.forEach((item) => {
+    if (!item?.value) {
+      sendFailureResponse({ res, message: `${toCapitalCase(item?.key)} cannot be not null or undefined` })
+      throw new Error(ERROR_SERVER_ERROR)
+    }
+  })
+}
+
+const handlePutRequest = async ({ req, res, model, bodyData = null, requiredFields = [], entity = "Record" }) => {
+  const { id } = req.params;
+  checkValidation({ req, res, model, bodyData, requiredFields })
+  if (id) {
+    await isNotFoundByID({ res, model, id, entity })
+    await isAlreadyExistById({ req, res, model, id, entity, bodyData })
+  }
+}
+
 const findIntersectionObjects = (obj1, obj2) => {
   const result = {};
   const deepIntersection = (source, target, currentKey = '') => {
@@ -115,38 +157,7 @@ const toCapitalCase = (string) => {
   return string?.charAt(0).toUpperCase() + string.slice(1)
 }
 
-const checkValidation = ({ req, res, model, requiredFields = [], bodyData = null }) => {
-  const allowedKeys = Object?.keys(model?.schema.tree);
-  const incomingData = bodyData || req.body;
 
-  if (Object.keys(req.body).length === 0) {
-    sendFailureResponse({ res, message: 'Null payload data' })
-    throw new Error(ERROR_SERVER_ERROR)
-  }
-
-  if (requiredFields?.length > 0) {
-    const remainingRequiredKeys = requiredFields.filter(element => !Object.keys(incomingData).includes(element))
-    remainingRequiredKeys?.length > 0 && remainingRequiredKeys?.forEach((item) => {
-      sendFailureResponse({ res, message: `${toCapitalCase(item)} is required` })
-      throw new Error(ERROR_SERVER_ERROR)
-    })
-  }
-
-  const invalidKeys = Object.keys(incomingData).filter(key => !allowedKeys.includes(key));
-  if (invalidKeys.length > 0) {
-    sendFailureResponse({ res, message: `${invalidKeys?.map(item => ` ${item}`)} ${invalidKeys?.length > 1 ? 'are' : 'is'} invalid ${invalidKeys?.length > 1 ? 'keys' : 'key'}` });
-    throw new Error(ERROR_SERVER_ERROR)
-  }
-
-  const paramsArr = Object.entries(incomingData).map(([key, value]) => ({ key, value }));
-
-  paramsArr?.forEach((item) => {
-    if (!item?.value) {
-      sendFailureResponse({ res, message: `${toCapitalCase(item?.key)} cannot be not null or undefined` })
-      throw new Error(ERROR_SERVER_ERROR)
-    }
-  })
-}
 
 const compareObjectsDeepEqual = (obj1, obj2) => {
   if (obj1 === obj2) return true;
@@ -178,4 +189,5 @@ module.exports = {
   isNotFoundByID,
   isAlreadyExistById,
   findIntersectionObjects,
+  handlePutRequest,
 };
