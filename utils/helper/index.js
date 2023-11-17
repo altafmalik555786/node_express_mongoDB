@@ -88,13 +88,11 @@ const toCapitalCase = (string) => {
 const checkValidation = ({ req, res, model, requiredFields = [], bodyData = null }) => {
   const allowedKeys = Object?.keys(model?.schema.tree);
   const incomingData = bodyData || req.body;
-  const invalidKeys = Object.keys(incomingData).filter(key => !allowedKeys.includes(key));
-  if (invalidKeys.length > 0) {
-    sendFailureResponse({ res, message: `${invalidKeys?.map(item => ` ${item}`)} ${invalidKeys?.length > 1 ? 'are' : 'is'} invalid ${invalidKeys?.length > 1 ? 'keys' : 'key'}` });
+
+  if (Object.keys(req.body).length === 0) {
+    sendFailureResponse({ res, message: 'Null payload data' })
     throw new Error(ERROR_SERVER_ERROR)
   }
-
-  const paramsArr = Object.entries(incomingData).map(([key, value]) => ({ key, value }));
 
   if (requiredFields?.length > 0) {
     const remainingRequiredKeys = requiredFields.filter(element => !Object.keys(incomingData).includes(element))
@@ -103,6 +101,14 @@ const checkValidation = ({ req, res, model, requiredFields = [], bodyData = null
       throw new Error(ERROR_SERVER_ERROR)
     })
   }
+
+  const invalidKeys = Object.keys(incomingData).filter(key => !allowedKeys.includes(key));
+  if (invalidKeys.length > 0) {
+    sendFailureResponse({ res, message: `${invalidKeys?.map(item => ` ${item}`)} ${invalidKeys?.length > 1 ? 'are' : 'is'} invalid ${invalidKeys?.length > 1 ? 'keys' : 'key'}` });
+    throw new Error(ERROR_SERVER_ERROR)
+  }
+
+  const paramsArr = Object.entries(incomingData).map(([key, value]) => ({ key, value }));
 
   paramsArr?.forEach((item) => {
     if (!item?.value) {

@@ -83,7 +83,7 @@ router.get("/user", authMiddleware, isAdminMiddleware, async (req, res) => {
 router.put("/user/:id", authMiddleware, async (req, res) => {
   try {
     const { id } = req.params;
-    checkValidation({ req, res, model: Model, requiredFields: ['email', 'password', 'firstName'] })
+    checkValidation({ req, res, model: Model, requiredFields: ['email', 'password'] })
     await isNotFoundByID({ res, model: Model, id, entity: "User" })
 
     // const user = await Model.findOne({ email: req.body.email });
