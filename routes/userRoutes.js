@@ -85,7 +85,7 @@ router.put("/user/:id", authMiddleware, async (req, res) => {
     const { id } = req.params;
     checkValidation({ req, res, model: Model, requiredFields: ['email', 'password'] })
     await isNotFoundByID({ res, model: Model, id, entity: "User" })
-    await isAlreadyExistById({ req, res, model: Model, id, bodyData: { email: req.body.email }})
+    await isAlreadyExistById({ req, res, model: Model, id, entity: "User", bodyData: { email: req.body.email }})
 
 
     // if (compareObjectsDeepEqual(user, req.body)) {

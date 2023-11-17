@@ -47,45 +47,32 @@ const isNotFoundByID = async ({ res, model, id, entity = "" }) => {
   }
 }
 
-const isAlreadyExistById = async ({ req, res, model, id, bodyData }) => {
+const isAlreadyExistById = async ({ req, res, model, id, bodyData, entity = "Record" }) => {
   const incomingData = bodyData || req.body;
-
   const findDataByID = await model.findById(id)
-  const intersectedObj = findIntersectionObjects(findDataByID, incomingData)
-
-  delete findDataByID._id
-  delete findDataByID.__v
-
-  console.log("intersectedObj[=========================", intersectedObj)
-
-  if (compareObjectsDeepEqual(intersectedObj, req.body)) {
-    console.log("findDataByID in", findDataByID)
+  const intersectedObj = findIntersectionObjects(incomingData, findDataByID.toObject())
+  if (Object.keys(intersectedObj)?.length > 0) {
+    sendFailureResponse({ res, message: `${entity} data already exist.` })
+    throw new Error(ERROR_SERVER_ERROR)
   }
-  console.log("findDataByID out", findDataByID)
-
-
 }
 
 const findIntersectionObjects = (obj1, obj2) => {
   const result = {};
-
   const deepIntersection = (source, target, currentKey = '') => {
-      for (const key in source) {
-          const newKey = currentKey ? `${currentKey}.${key}` : key;
-
-          if (target.hasOwnProperty(key)) {
-              if (typeof source[key] === 'object' && typeof target[key] === 'object') {
-                  result[newKey] = {};
-                  deepIntersection(source[key], target[key], newKey);
-              } else if (source[key] === target[key]) {
-                  result[newKey] = source[key];
-              }
-          }
+    for (const key in source) {
+      const newKey = currentKey ? `${currentKey}.${key}` : key;
+      if (target.hasOwnProperty(key)) {
+        if (typeof source[key] === 'object' && typeof target[key] === 'object') {
+          result[newKey] = {};
+          deepIntersection(source[key], target[key], newKey);
+        } else if (source[key] === target[key]) {
+          result[newKey] = source[key];
+        }
       }
+    }
   };
-
   deepIntersection(obj1, obj2);
-
   return result;
 };
 
