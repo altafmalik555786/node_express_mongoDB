@@ -7,9 +7,9 @@ require("dotenv").config();
 const app = express();
 const router = express.Router();
 const bcrypt = require("bcrypt");
-const { sendFailureResponse, handleCatchedError, sendSuccessResponse, checkValidation, handlePutRequest } = require("../utils/helper");
+const { sendFailureResponse, handleCatchedError, sendSuccessResponse, checkValidation, handlePutRequest, isNotFoundByID } = require("../utils/helper");
 const { json } = require("body-parser");
-const { UPDATED_MESSAGE } = require("../utils/const");
+const { MESSAGE_UPDATED, MESSAGE_DELETED, MESSAGE_NOT_FOUND } = require("../utils/const");
 const saltRounds = 10;
 const salt = bcrypt.genSaltSync(saltRounds);
 // Secret key for signing and verifying tokens
@@ -22,7 +22,7 @@ app.use(express.json());
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
   const user = await Model.findOne({ email });
-  checkValidation({req, res, model: Model, bodyData: { email, password }})
+  checkValidation({ req, res, model: Model, bodyData: { email, password } })
   if (!user) {
     sendFailureResponse({ res, status: 404, message: "Email is invalid" });
   }
@@ -51,7 +51,7 @@ router.post("/login", async (req, res) => {
 router.post("/register", async (req, res) => {
   try {
     const { password, email, role } = req.body;
-    checkValidation({req, res, model: Model, bodyData: { password, email, role }})
+    checkValidation({ req, res, model: Model, bodyData: { password, email, role } })
     const existingUser = await Model.findOne({ email });
     if (existingUser) {
       sendFailureResponse({ res, message: "Email already taken" })
@@ -84,10 +84,10 @@ router.put("/user/:id", authMiddleware, async (req, res) => {
   try {
     const { id } = req.params;
     delete req.body.password
-    await handlePutRequest({req, res, model: Model, entity: 'User', bodyData: {...req.body} })
+    await handlePutRequest({ req, res, model: Model, entity: 'User', bodyData: { ...req.body } })
     const options = { new: true };
     const data = await Model.findByIdAndUpdate(id, req.body, options);
-    sendSuccessResponse({ res, data, message: UPDATED_MESSAGE("User") })
+    sendSuccessResponse({ res, data, message: MESSAGE_UPDATED("User") })
   } catch (error) {
     handleCatchedError({ res, error, at: "/user/:id" })
   }
@@ -97,22 +97,11 @@ router.put("/user/:id", authMiddleware, async (req, res) => {
 router.delete("/user/:id", authMiddleware, isAdminMiddleware, async (req, res) => {
   try {
     const userId = req.params.id;
-    if (!mongoose.Types.ObjectId.isValid(userId)) {
-      // Invalid user ID format
-      return res.status(404).send({ message: 'Invalid user ID' });
-    }
-
-    const user = await Model.findById(userId);
-    if (user) {
-      // User found, perform deletion
-      const deletedUser = await Model.findByIdAndDelete(userId);
-      return res.status(200).send({ success: true, message: `${deletedUser.name} has been deleted successfully.` });
-    } else {
-      // User not found
-      return res.status(404).send({ message: 'User not found' });
-    }
+    await isNotFoundByID({ req, res, model: Model, entity: "User" })
+    await Model.findByIdAndDelete(userId);
+    return sendSuccessResponse({ res, message: MESSAGE_DELETED('User') })
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    handleCatchedError({ res, error })
   }
 });
 

@@ -1,9 +1,9 @@
 const mongoose = require('mongoose');
-const { NOT_FOUND_MESSAGE, ERROR_INVALID_ID, ERROR_RECORD_NOT_FOUND, ERROR_SERVER_ERROR } = require('../const');
+const { MESSAGE_NOT_FOUND, ERROR_INVALID_ID, ERROR_RECORD_NOT_FOUND, ERROR_SERVER_ERROR } = require('../const');
 
 const handleCatchedError = ({
   error,
-  at = "at position not defined",
+  at = "at position is not defined",
   res = null,
   status = 500,
   message = "Server error! Something went wrong."
@@ -34,14 +34,15 @@ const returnCatchedError = ({ res = null, status = 400, error, at = "at position
   res.status(status).json(error)
 }
 
-const isNotFoundByID = async ({ res, model, id, entity = "" }) => {
-  if (!mongoose.Types.ObjectId.isValid(id)) {
+const isNotFoundByID = async ({ req, res, model, id = null, entity = "" }) => {
+  const recordId = id || req.params.id
+  if (!mongoose.Types.ObjectId.isValid(recordId)) {
     sendFailureResponse({ res, message: `Invalid ${entity} Object ID, Id dont have type pattern.` })
     throw new Error(ERROR_INVALID_ID)
   } else {
-    const existObj = await model.findById(id);
+    const existObj = await model.findById(recordId);
     if (!existObj) {
-      sendFailureResponse({ res, message: NOT_FOUND_MESSAGE(entity), status: 404 });
+      sendFailureResponse({ res, message: MESSAGE_NOT_FOUND(entity), status: 404 });
       throw new Error(ERROR_RECORD_NOT_FOUND)
     }
   }
@@ -94,7 +95,7 @@ const handlePutRequest = async ({ req, res, model, bodyData = null, requiredFiel
   const { id } = req.params;
   checkValidation({ req, res, model, bodyData, requiredFields })
   if (id) {
-    await isNotFoundByID({ res, model, id, entity })
+    await isNotFoundByID({req, res, model, id, entity })
     await isAlreadyExistById({ req, res, model, id, entity, bodyData })
   }
 }
