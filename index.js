@@ -18,6 +18,7 @@ database.once('connected', () => {
     console.log('Database Connected');
 })
 const app = express();
+
 app.use(express.json());
 app.use((req, res, next) => {
   const clientIP = req.ip; // This captures the client's IP address

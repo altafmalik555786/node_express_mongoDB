@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
-const { sendFailureResponse, handleCatchedError } = require('./helper');
+const { handleCatchedError } = require('./helper');
 const { userRoles } = require('./json');
+const { sendFailureResponse } = require('./helper/api');
 const secretKey = process.env.secretKey;
 
 const authMiddleware = (req, res, next) => {

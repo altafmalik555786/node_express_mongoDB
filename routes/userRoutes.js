@@ -1,15 +1,14 @@
 const express = require("express");
 const jwt = require("jsonwebtoken");
 const Model = require("../model/user");
-const mongoose = require('mongoose');
-const { authMiddleware, isAdminMiddleware } = require('../utils/authMiddleware');
 require("dotenv").config();
 const app = express();
 const router = express.Router();
 const bcrypt = require("bcrypt");
-const { sendFailureResponse, handleCatchedError, sendSuccessResponse, checkValidation, handlePutRequest, isNotFoundByID } = require("../utils/helper");
-const { json } = require("body-parser");
-const { MESSAGE_UPDATED, MESSAGE_DELETED, MESSAGE_NOT_FOUND } = require("../utils/const");
+const { authMiddleware, isAdminMiddleware } = require('../utils/authMiddleware');
+const { handleCatchedError } = require("../utils/helper");
+const { MESSAGE_UPDATED, MESSAGE_DELETED, MESSAGE_CREATED } = require("../utils/const");
+const { sendFailureResponse, checkValidation, isNotFoundByID, sendSuccessResponse, handlePutRequest } = require("../utils/helper/api");
 const saltRounds = 10;
 const salt = bcrypt.genSaltSync(saltRounds);
 // Secret key for signing and verifying tokens
@@ -51,10 +50,10 @@ router.post("/login", async (req, res) => {
 router.post("/register", async (req, res) => {
   try {
     const { password, email, role } = req.body;
-    checkValidation({ req, res, model: Model, bodyData: { password, email, role } })
+    checkValidation({ req, res, model: Model, bodyData: { password, email, role }})
     const existingUser = await Model.findOne({ email });
     if (existingUser) {
-      sendFailureResponse({ res, message: "Email already taken" })
+      return sendFailureResponse({ res, message: "Email already taken" })
     }
     const hash = bcrypt.hashSync(password, salt);
     const data = new Model({
@@ -63,7 +62,7 @@ router.post("/register", async (req, res) => {
       role
     });
     await data.save();
-    sendSuccessResponse({ res, message: "User registered successfully." })
+    sendSuccessResponse({ res, message: MESSAGE_CREATED('User') })
   } catch (error) {
     handleCatchedError({ res, error, at: "/register" })
   }
@@ -79,7 +78,6 @@ router.get("/user", authMiddleware, isAdminMiddleware, async (req, res) => {
   }
 });
 
-// Update User
 router.put("/user/:id", authMiddleware, async (req, res) => {
   try {
     const { id } = req.params;
@@ -93,7 +91,6 @@ router.put("/user/:id", authMiddleware, async (req, res) => {
   }
 });
 
-// Delete specific user method
 router.delete("/user/:id", authMiddleware, isAdminMiddleware, async (req, res) => {
   try {
     const userId = req.params.id;
@@ -101,7 +98,7 @@ router.delete("/user/:id", authMiddleware, isAdminMiddleware, async (req, res) =
     await Model.findByIdAndDelete(userId);
     return sendSuccessResponse({ res, message: MESSAGE_DELETED('User') })
   } catch (error) {
-    handleCatchedError({ res, error })
+    handleCatchedError({ res, error, at: '/user/:id' })
   }
 });
 
