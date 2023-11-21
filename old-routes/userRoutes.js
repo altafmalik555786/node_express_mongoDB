@@ -68,15 +68,15 @@ router.post("/register", async (req, res) => {
   }
 });
 
-//Get all Users
-router.get("/user", authMiddleware, isAdminMiddleware, async (req, res) => {
-  try {
-    const data = await Model.find();
-    sendSuccessResponse({ res, data })
-  } catch (error) {
-    handleCatchedError({ res, error, at: "/user" })
-  }
-});
+// //Get all Users
+// router.get("/user", authMiddleware, isAdminMiddleware, async (req, res) => {
+//   try {
+//     const data = await Model.find();
+//     sendSuccessResponse({ res, data })
+//   } catch (error) {
+//     handleCatchedError({ res, error, at: "/user" })
+//   }
+// });
 
 router.put("/user/:id", authMiddleware, async (req, res) => {
   try {
