@@ -6,7 +6,7 @@ const app = express();
 const router = express.Router();
 const bcrypt = require("bcrypt");
 const { authMiddleware, isAdminMiddleware } = require('../utils/authMiddleware');
-const { handleCatchedError } = require("../utils/helper");
+const { handleCatchedError } = require("../utils/helper/common");
 const { MESSAGE_UPDATED, MESSAGE_DELETED, MESSAGE_CREATED } = require("../utils/const");
 const { sendFailureResponse, checkValidation, isNotFoundByID, sendSuccessResponse, handlePutRequest } = require("../utils/helper/api");
 const saltRounds = 10;
@@ -50,7 +50,7 @@ router.post("/login", async (req, res) => {
 router.post("/register", async (req, res) => {
   try {
     const { password, email, role } = req.body;
-    checkValidation({ req, res, model: Model, bodyData: { password, email, role }})
+    checkValidation({ req, res, model: Model, bodyData: { password, email, role } })
     const existingUser = await Model.findOne({ email });
     if (existingUser) {
       return sendFailureResponse({ res, message: "Email already taken" })
@@ -95,8 +95,8 @@ router.delete("/user/:id", authMiddleware, isAdminMiddleware, async (req, res) =
   try {
     const userId = req.params.id;
     await isNotFoundByID({ req, res, model: Model, entity: "User" })
-    await Model.findByIdAndDelete(userId);
-    return sendSuccessResponse({ res, message: MESSAGE_DELETED('User') })
+    const data = await Model.findByIdAndDelete(userId);
+    return sendSuccessResponse({ res, message: MESSAGE_DELETED('User'), data})
   } catch (error) {
     handleCatchedError({ res, error, at: '/user/:id' })
   }

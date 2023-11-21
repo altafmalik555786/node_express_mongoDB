@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
-const { ERROR_INVALID_ID, ERROR_RECORD_NOT_FOUND, ERROR_SERVER_ERROR } = require('../const');
-const { sendFailureResponse } = require('./api');
+const { ERROR_INVALID_ID, ERROR_RECORD_NOT_FOUND, ERROR_SERVER_ERROR } = require('../../const');
+const { sendFailureResponse } = require('../api');
 
 const handleCatchedError = ({
   error,
@@ -29,8 +29,6 @@ const handleCatchedError = ({
   console.log(" /////////////////////////////////////////////////////////////////////////////// ")
   // console.log(" /////////////////////////////////////////////////////////////////////////////// ")
 };
-
-
 
 const toCapitalCase = (string) => {
   return string?.charAt(0).toUpperCase() + string.slice(1)

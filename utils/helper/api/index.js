@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 const { MESSAGE_NOT_FOUND, ERROR_INVALID_ID, ERROR_RECORD_NOT_FOUND, ERROR_SERVER_ERROR } = require('../../const');
-const { toCapitalCase, findIntersectionObjects } = require('../../helper/index.js');
 
 const isNotFoundByID = async ({ req, res, model, id = null, entity = "" }) => {
     const recordId = id || req.params.id
@@ -16,6 +15,26 @@ const isNotFoundByID = async ({ req, res, model, id = null, entity = "" }) => {
     }
 }
 
+const findIntersectionObjects = (obj1, obj2) => {
+    const result = {};
+    const deepIntersection = (source, target, currentKey = '') => {
+      for (const key in source) {
+        const newKey = currentKey ? `${currentKey}.${key}` : key;
+        if (target.hasOwnProperty(key)) {
+          if (typeof source[key] === 'object' && typeof target[key] === 'object') {
+            result[newKey] = {};
+            deepIntersection(source[key], target[key], newKey);
+          } else if (source[key] === target[key]) {
+            result[newKey] = source[key];
+          }
+        }
+      }
+    };
+    deepIntersection(obj1, obj2);
+    return result;
+  };
+  
+
 const isAlreadyExistById = async ({ req, res, model, id, bodyData, entity = "Record" }) => {
     const incomingData = bodyData || req.body;
     const findDataByID = await model.findById(id)
@@ -25,6 +44,11 @@ const isAlreadyExistById = async ({ req, res, model, id, bodyData, entity = "Rec
         throw new Error(ERROR_SERVER_ERROR)
     }
 }
+
+const toCapitalCase = (string) => {
+    return string?.charAt(0).toUpperCase() + string.slice(1)
+  }
+  
 
 const checkValidation = ({ req, res, model, requiredFields = [], bodyData = null }) => {
     const allowedKeys = Object?.keys(model?.schema.tree);
