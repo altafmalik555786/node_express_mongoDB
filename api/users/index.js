@@ -16,6 +16,16 @@ const getAllUsers = async (req, res) => {
   }
 };
 
+const getSingleUser = async (req, res) => {
+  try {
+    const { id } = req?.body;
+    const data = await UserModel.findById(id);
+    sendSuccessResponse({ res, data });
+  } catch (error) {
+    handleCatchedError({ res, error, at: "getSingleUser" });
+  }
+};
+
 const updateUser = async (req, res) => {
   try {
     const { id } = req.params;
@@ -36,18 +46,19 @@ const updateUser = async (req, res) => {
 };
 
 const deleteUser = async (req, res) => {
-    try {
-      const userId = req.params.id;
-      await isNotFoundByID({ req, res, model: UserModel, entity: "User" })
-      const data = await UserModel.findByIdAndDelete(userId);
-      return sendSuccessResponse({ res, message: MESSAGE_DELETED('User'), data})
-    } catch (error) {
-      handleCatchedError({ res, error, at: '/user/:id' })
-    }
+  try {
+    const userId = req.params.id;
+    await isNotFoundByID({ req, res, model: UserModel, entity: "User" });
+    const data = await UserModel.findByIdAndDelete(userId);
+    return sendSuccessResponse({ res, message: MESSAGE_DELETED("User"), data });
+  } catch (error) {
+    handleCatchedError({ res, error, at: "/user/:id" });
   }
+};
 
 module.exports = {
   getAllUsers,
   updateUser,
-  deleteUser
+  deleteUser,
+  getSingleUser,
 };

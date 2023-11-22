@@ -1,7 +1,7 @@
 const { Router } = require("express");
 const router = Router();
 const { endPoints } = require("../const/index");
-const { getAllUsers, updateUser, deleteUser } = require("../../api/users");
+const { getAllUsers, updateUser, deleteUser, getSingleUser } = require("../../api/users");
 const {
   authMiddleware,
   isAdminMiddleware,
@@ -14,7 +14,11 @@ router.get(
   isAdminMiddleware,
   getAllUsers
 );
-// router.get(`${endPoints?.users}${ROUTE_PARAM_SLASH_ID}`, getAllUsers);
+router.get(
+  `${endPoints?.users}${ROUTE_PARAM_SLASH_ID}`,
+  authMiddleware,
+  getSingleUser
+);
 router.put(
   `${endPoints?.users}${ROUTE_PARAM_SLASH_ID}`,
   authMiddleware,

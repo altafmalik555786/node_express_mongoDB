@@ -5,7 +5,6 @@ const userRouter = require("./users");
 const { sendFailureResponse } = require("../utils/helper/api");
 const { baseUrl } = require("./const");
 
-
 ////// Default Path start_poinnt //////
 router.get("/", (req, res) => {
   res.send(`
@@ -21,10 +20,9 @@ const useCombineRoutes = (app) => {
   app.use(router);
   app.use(baseUrl, userRouter);
 
-
-  // NOTE: use router above
+  // NOTE: Use other routers above to this comment.
   app.use((req, res) => {
-    sendFailureResponse({ res, message: "API not found" });
+    sendFailureResponse({ res, status: 404, message: "API not found" });
   });
 };
 

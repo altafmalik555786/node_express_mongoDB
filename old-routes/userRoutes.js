@@ -5,10 +5,23 @@ require("dotenv").config();
 const app = express();
 const router = express.Router();
 const bcrypt = require("bcrypt");
-const { authMiddleware, isAdminMiddleware } = require('../utils/authMiddleware');
+const {
+  authMiddleware,
+  isAdminMiddleware,
+} = require("../utils/authMiddleware");
 const { handleCatchedError } = require("../utils/helper/common");
-const { MESSAGE_UPDATED, MESSAGE_DELETED, MESSAGE_CREATED } = require("../utils/const");
-const { sendFailureResponse, checkValidation, isNotFoundByID, sendSuccessResponse, handlePutRequest } = require("../utils/helper/api");
+const {
+  MESSAGE_UPDATED,
+  MESSAGE_DELETED,
+  MESSAGE_CREATED,
+} = require("../utils/const");
+const {
+  sendFailureResponse,
+  checkValidation,
+  isNotFoundByID,
+  sendSuccessResponse,
+  handlePutRequest,
+} = require("../utils/helper/api");
 const saltRounds = 10;
 const salt = bcrypt.genSaltSync(saltRounds);
 // Secret key for signing and verifying tokens
@@ -17,32 +30,35 @@ const secretKey = process.env.secretKey;
 // Middleware function to parse request body
 app.use(express.json());
 
-
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
   const user = await Model.findOne({ email });
-  checkValidation({ req, res, model: Model, bodyData: { email, password } })
+  checkValidation({ req, res, model: Model, bodyData: { email, password } });
   if (!user) {
     sendFailureResponse({ res, status: 404, message: "Email is invalid" });
   }
   const isPasswordMatch = await bcrypt.compare(password, user.password);
   try {
     if (user.email && isPasswordMatch) {
-      const token = jwt.sign({ name: user.name, id: user._id, role: user.role }, `${secretKey}`, {
-        expiresIn: "100h",
-      });
+      const token = jwt.sign(
+        { name: user.name, id: user._id, role: user.role },
+        `${secretKey}`,
+        {
+          expiresIn: "100h",
+        }
+      );
       app.set("secret", secretKey);
       const data = {
         success: true,
         token: token,
-        data: user
-      }
+        data: user,
+      };
       return res.status(200).json(data);
     } else {
       sendFailureResponse({ res, message: "Invalid credentials" });
     }
   } catch (error) {
-    handleCatchedError({ error })
+    handleCatchedError({ error });
   }
 });
 
@@ -50,57 +66,28 @@ router.post("/login", async (req, res) => {
 router.post("/register", async (req, res) => {
   try {
     const { password, email, role } = req.body;
-    checkValidation({ req, res, model: Model, bodyData: { password, email, role } })
+    checkValidation({
+      req,
+      res,
+      model: Model,
+      bodyData: { password, email, role },
+    });
     const existingUser = await Model.findOne({ email });
     if (existingUser) {
-      return sendFailureResponse({ res, message: "Email already taken" })
+      return sendFailureResponse({ res, message: "Email already taken" });
     }
     const hash = bcrypt.hashSync(password, salt);
     const data = new Model({
       password: hash,
       email,
-      role
+      role,
     });
     await data.save();
-    sendSuccessResponse({ res, message: MESSAGE_CREATED('User') })
+    sendSuccessResponse({ res, message: MESSAGE_CREATED("User") });
   } catch (error) {
-    handleCatchedError({ res, error, at: "/register" })
+    handleCatchedError({ res, error, at: "/register" });
   }
 });
-
-// //Get all Users
-// router.get("/user", authMiddleware, isAdminMiddleware, async (req, res) => {
-//   try {
-//     const data = await Model.find();
-//     sendSuccessResponse({ res, data })
-//   } catch (error) {
-//     handleCatchedError({ res, error, at: "/user" })
-//   }
-// });
-
-// router.put("/user/:id", authMiddleware, async (req, res) => {
-//   try {
-//     const { id } = req.params;
-//     delete req.body.password
-//     await handlePutRequest({ req, res, model: Model, entity: 'User', bodyData: { ...req.body } })
-//     const options = { new: true };
-//     const data = await Model.findByIdAndUpdate(id, req.body, options);
-//     sendSuccessResponse({ res, data, message: MESSAGE_UPDATED("User") })
-//   } catch (error) {
-//     handleCatchedError({ res, error, at: "/user/:id" })
-//   }
-// });
-
-// router.delete("/user/:id", authMiddleware, isAdminMiddleware, async (req, res) => {
-//   try {
-//     const userId = req.params.id;
-//     await isNotFoundByID({ req, res, model: Model, entity: "User" })
-//     const data = await Model.findByIdAndDelete(userId);
-//     return sendSuccessResponse({ res, message: MESSAGE_DELETED('User'), data})
-//   } catch (error) {
-//     handleCatchedError({ res, error, at: '/user/:id' })
-//   }
-// });
 
 // //Reset User Password
 // router.post("/resetPassword", async (req, res) => {
@@ -129,7 +116,5 @@ router.post("/register", async (req, res) => {
 //     res.status(400).json({ message: error.message });
 //   }
 // });
-
-
 
 module.exports = { router };
