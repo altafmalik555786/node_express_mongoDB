@@ -78,29 +78,29 @@ router.post("/register", async (req, res) => {
 //   }
 // });
 
-router.put("/user/:id", authMiddleware, async (req, res) => {
-  try {
-    const { id } = req.params;
-    delete req.body.password
-    await handlePutRequest({ req, res, model: Model, entity: 'User', bodyData: { ...req.body } })
-    const options = { new: true };
-    const data = await Model.findByIdAndUpdate(id, req.body, options);
-    sendSuccessResponse({ res, data, message: MESSAGE_UPDATED("User") })
-  } catch (error) {
-    handleCatchedError({ res, error, at: "/user/:id" })
-  }
-});
+// router.put("/user/:id", authMiddleware, async (req, res) => {
+//   try {
+//     const { id } = req.params;
+//     delete req.body.password
+//     await handlePutRequest({ req, res, model: Model, entity: 'User', bodyData: { ...req.body } })
+//     const options = { new: true };
+//     const data = await Model.findByIdAndUpdate(id, req.body, options);
+//     sendSuccessResponse({ res, data, message: MESSAGE_UPDATED("User") })
+//   } catch (error) {
+//     handleCatchedError({ res, error, at: "/user/:id" })
+//   }
+// });
 
-router.delete("/user/:id", authMiddleware, isAdminMiddleware, async (req, res) => {
-  try {
-    const userId = req.params.id;
-    await isNotFoundByID({ req, res, model: Model, entity: "User" })
-    const data = await Model.findByIdAndDelete(userId);
-    return sendSuccessResponse({ res, message: MESSAGE_DELETED('User'), data})
-  } catch (error) {
-    handleCatchedError({ res, error, at: '/user/:id' })
-  }
-});
+// router.delete("/user/:id", authMiddleware, isAdminMiddleware, async (req, res) => {
+//   try {
+//     const userId = req.params.id;
+//     await isNotFoundByID({ req, res, model: Model, entity: "User" })
+//     const data = await Model.findByIdAndDelete(userId);
+//     return sendSuccessResponse({ res, message: MESSAGE_DELETED('User'), data})
+//   } catch (error) {
+//     handleCatchedError({ res, error, at: '/user/:id' })
+//   }
+// });
 
 // //Reset User Password
 // router.post("/resetPassword", async (req, res) => {
