@@ -8,8 +8,7 @@ const bcrypt = require("bcrypt");
 const { handleCatchedError } = require("../../utils/helper/common");
 const secretKey = process.env.secretKey;
 const jwt = require("jsonwebtoken");
-const express = require("express");
-const app = express();
+const { app } = require("../../utils/instances");
 
 const login = async (req, res) => {
   const { email, password } = req.body;
