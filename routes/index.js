@@ -1,7 +1,7 @@
 const { Router } = require("express");
 const router = Router();
-const express = require("express");
-const userRouter = require("./users");
+const UserRouter = require("./users");
+const AuthRouter = require('./auth')
 const { sendFailureResponse } = require("../utils/helper/api");
 const { baseUrl } = require("./const");
 
@@ -18,7 +18,8 @@ router.get("/", (req, res) => {
 
 const useCombineRoutes = (app) => {
   app.use(router);
-  app.use(baseUrl, userRouter);
+  app.use(baseUrl, UserRouter);
+  app.use(baseUrl, AuthRouter);
 
   // NOTE: Use other routers above to this comment.
   app.use((req, res) => {

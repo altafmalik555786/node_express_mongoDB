@@ -5,22 +5,14 @@ require("dotenv").config();
 const app = express();
 const router = express.Router();
 const bcrypt = require("bcrypt");
-const {
-  authMiddleware,
-  isAdminMiddleware,
-} = require("../utils/authMiddleware");
 const { handleCatchedError } = require("../utils/helper/common");
 const {
-  MESSAGE_UPDATED,
-  MESSAGE_DELETED,
   MESSAGE_CREATED,
 } = require("../utils/const");
 const {
   sendFailureResponse,
   checkValidation,
-  isNotFoundByID,
   sendSuccessResponse,
-  handlePutRequest,
 } = require("../utils/helper/api");
 const saltRounds = 10;
 const salt = bcrypt.genSaltSync(saltRounds);

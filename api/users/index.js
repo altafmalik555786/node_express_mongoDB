@@ -19,6 +19,7 @@ const getAllUsers = async (req, res) => {
 const getSingleUser = async (req, res) => {
   try {
     const { id } = req?.body;
+    isNotFoundByID({ req, res, model: UserModel, entity: 'User' })
     const data = await UserModel.findById(id);
     sendSuccessResponse({ res, data });
   } catch (error) {
