@@ -1,9 +1,14 @@
 const { Router } = require("express");
 const router = Router();
 const UserRouter = require("./users");
-const AuthRouter = require('./auth')
+const AuthRouter = require("./auth");
 const { sendFailureResponse } = require("../utils/helper/api");
 const { baseUrl } = require("./const");
+const bodyParser = require("body-parser");
+const fileUpload = require("express-fileupload");
+const cors = require("cors");
+const express = require("express");
+const { app } = require("../utils/instances");
 
 ////// Default Path start_poinnt //////
 router.get("/", (req, res) => {
@@ -16,7 +21,32 @@ router.get("/", (req, res) => {
 });
 ////// Default Path end_point ///////
 
-const useCombineRoutes = (app) => {
+app.use((req, res, next) => {
+  const clientIP = req.ip; // This captures the client's IP address
+  // You can save or log the IP address as needed
+  console.log(`Client IP Address: ${clientIP}`);
+  next();
+});
+
+app.use(express.json());
+
+// const allowedOrigins = ["https://coolblogging.netlify.app"];
+const allowedOrigins = ["http://localhost:8080/"];
+app.use(
+  cors({
+    origin: allowedOrigins, // Use the CORS_ORIGIN environment variable
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+  })
+);
+
+app.use(bodyParser.json());
+app.use(
+  fileUpload({
+    useTempFiles: false,
+  })
+);
+
+const useCombineRoutes = () => {
   app.use(router);
   app.use(baseUrl, UserRouter);
   app.use(baseUrl, AuthRouter);
