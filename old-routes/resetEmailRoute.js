@@ -3,7 +3,6 @@ const router = express.Router();
 const nodemailer = require("nodemailer");
 const User = require("../model/user");
 const ResetCode = require('../model/resetEmail');
-const app = express();
 const bcrypt = require("bcrypt");
 const crypto = require('crypto');
 const saltRounds = 10;
@@ -11,7 +10,6 @@ const salt = bcrypt.genSaltSync(saltRounds);
 
 
 // Middleware function to parse request body
-app.use(express.json());
 
 // POST route for requesting password reset
 router.post('/passwordResetEmail', async (req, res) => {

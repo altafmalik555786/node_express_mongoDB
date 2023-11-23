@@ -3,14 +3,8 @@ const router = express.Router();
 const nodemailer = require("nodemailer");
 const Token = require('../model/emailToken');
 const crypto = require('crypto');
-const app = express();
 
 
-// Middleware function to parse request body
-app.use(express.json());
-
-// // Create a Set to store verification tokens
-// const verificationTokens = new Set();
 
 router.post('/email-verification', async (req, res) => {
   const { email } = req.body;

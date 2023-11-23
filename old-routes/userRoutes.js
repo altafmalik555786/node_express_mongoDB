@@ -2,7 +2,6 @@ const express = require("express");
 const jwt = require("jsonwebtoken");
 const Model = require("../model/user");
 require("dotenv").config();
-const app = express();
 const router = express.Router();
 const bcrypt = require("bcrypt");
 const { handleCatchedError } = require("../utils/helper/common");
@@ -14,13 +13,10 @@ const {
   checkValidation,
   sendSuccessResponse,
 } = require("../utils/helper/api");
+const { app } = require("../utils/instances");
 const saltRounds = 10;
 const salt = bcrypt.genSaltSync(saltRounds);
-// Secret key for signing and verifying tokens
 const secretKey = process.env.secretKey;
-
-// Middleware function to parse request body
-app.use(express.json());
 
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
