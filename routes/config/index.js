@@ -1,14 +1,14 @@
 const { Router } = require("express");
 const router = Router();
-const UserRouter = require("./users");
-const AuthRouter = require("./auth");
-const { sendFailureResponse } = require("../utils/helper/api");
-const { baseUrl } = require("./const");
+const UserRouter = require("../users");
+const AuthRouter = require("../auth");
+const { sendFailureResponse } = require("../../utils/helper/api");
+const { baseUrl } = require("../const");
 const bodyParser = require("body-parser");
 const fileUpload = require("express-fileupload");
 const cors = require("cors");
 const express = require("express");
-const { app } = require("../utils/instances");
+const { app } = require("../../utils/instances");
 
 ////// Default Path start_poinnt //////
 router.get("/", (req, res) => {

@@ -2,7 +2,7 @@ require("dotenv").config();
 const mongoose = require("mongoose");
 const cors = require("cors");
 const mongoString = process.env.DATABASE_URL;
-const useCombineRoutes = require("./routes");
+const useCombineRoutes = require("./routes/config");
 const { app } = require("./utils/instances");
 
 mongoose.connect(mongoString);
