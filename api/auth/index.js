@@ -46,6 +46,33 @@ const login = async (req, res) => {
   }
 };
 
+const registerUser = async (req, res) => {
+  try {
+    const { password, email, role } = req.body;
+    checkValidation({
+      req,
+      res,
+      model: UserModel,
+      bodyData: { password, email, role },
+    });
+    const existingUser = await UserModel.findOne({ email });
+    if (existingUser) {
+      return sendFailureResponse({ res, message: "Email already taken" });
+    }
+    const hash = bcrypt.hashSync(password, salt);
+    const data = new Model({
+      password: hash,
+      email,
+      role,
+    });
+    await data.save();
+    sendSuccessResponse({ res, message: MESSAGE_CREATED("User") });
+  } catch (error) {
+    handleCatchedError({ res, error, at: "/register" });
+  }
+};
+
 module.exports = {
   login,
+  registerUser,
 };

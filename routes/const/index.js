@@ -4,7 +4,8 @@ const endPoints = {
     playList: "/playlist",
     posts: '/posts',
     users: '/users',
-    login: '/login'
+    login: '/login',
+    registerUser: '/register',
 }
 
 module.exports = {

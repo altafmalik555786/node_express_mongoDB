@@ -8,14 +8,14 @@ const { app, router } = require("../../utils/instances");
 const { UserRouter } = require("../users");
 const { AuthRouter } = require("../auth");
 
-const routerList = [ UserRouter, AuthRouter ]
+const routerList = [UserRouter, AuthRouter];
 
 ////// Default Path start_poinnt //////
 router.get("/", (req, res) => {
   res.send(`
     <h2>Welcome</h2> 
     <b> I'm here to welcome you to my Express, Sequelize Application.
-    I'm building a product to act like a boilerplate.</b>
+      I'm building a product to act like a boilerplate.</b>
     <p>You are now at our root route "/".</p>
  `);
 });
@@ -48,8 +48,8 @@ app.use(
 );
 
 const useCombineRoutes = () => {
-  app.use(router)
-  routerList?.forEach((item) => { 
+  app.use(router);
+  routerList?.forEach((item) => {
     app.use(baseUrl, item);
   });
   app.use((req, res) => {
