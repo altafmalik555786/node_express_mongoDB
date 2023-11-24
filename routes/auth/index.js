@@ -1,8 +1,7 @@
 const { login } = require("../../api/auth");
-const { Router } = require("express");
-const { endPoints } = require("../const");
+const { endPoints } = require("../const/index.js");
+const { router } = require("../../utils/instances");
 
-const router = Router();
 router.post(`${endPoints?.login}`, login);
 
-module.exports = router;
+module.exports = { AuthRouter: router };

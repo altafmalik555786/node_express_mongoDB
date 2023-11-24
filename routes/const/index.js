@@ -8,6 +8,6 @@ const endPoints = {
 }
 
 module.exports = {
-    endPoints,
-    baseUrl
-};
+    baseUrl,
+    endPoints
+}

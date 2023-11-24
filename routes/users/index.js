@@ -1,12 +1,16 @@
-const { Router } = require("express");
-const router = Router();
 const { endPoints } = require("../const/index");
-const { getAllUsers, updateUser, deleteUser, getSingleUser } = require("../../api/users");
+const {
+  getAllUsers,
+  updateUser,
+  deleteUser,
+  getSingleUser,
+} = require("../../api/users");
 const {
   authMiddleware,
   isAdminMiddleware,
 } = require("../../utils/authMiddleware");
 const { ROUTE_PARAM_SLASH_ID } = require("../../utils/const");
+const { router } = require("../../utils/instances");
 
 router.get(
   `${endPoints?.users}`,
@@ -31,4 +35,4 @@ router.delete(
   deleteUser
 );
 
-module.exports = router;
+module.exports = { UserRouter: router };

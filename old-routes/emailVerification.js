@@ -1,10 +1,7 @@
-const express = require("express");
-const router = express.Router();
 const nodemailer = require("nodemailer");
 const Token = require('../model/emailToken');
 const crypto = require('crypto');
-
-
+const { router } = require("../utils/instances");
 
 router.post('/email-verification', async (req, res) => {
   const { email } = req.body;
