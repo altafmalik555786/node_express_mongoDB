@@ -1,12 +1,10 @@
-const { Router } = require("express");
-const router = Router();
 const { sendFailureResponse } = require("../../utils/helper/api");
 const { baseUrl } = require("../const");
 const bodyParser = require("body-parser");
 const fileUpload = require("express-fileupload");
 const cors = require("cors");
 const express = require("express");
-const { app } = require("../../utils/instances");
+const { app, router } = require("../../utils/instances");
 const AuthRouter = require("../auth");
 const UserRouter = require("../users");
 
