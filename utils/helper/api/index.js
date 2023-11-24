@@ -47,8 +47,7 @@ const isAlreadyExistById = async ({ req, res, model, id, bodyData, entity = "Rec
 
 const toCapitalCase = (string) => {
     return string?.charAt(0).toUpperCase() + string.slice(1)
-  }
-  
+}
 
 const checkValidation = ({ req, res, model, requiredFields = [], bodyData = null }) => {
     const allowedKeys = Object?.keys(model?.schema.tree);

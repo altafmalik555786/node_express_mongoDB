@@ -1,5 +1,5 @@
-const baseUrl = "/api/v1/";
 
+const baseUrl = "/api/v1/";
 const endPoints = {
     playList: "/playlist",
     posts: '/posts',

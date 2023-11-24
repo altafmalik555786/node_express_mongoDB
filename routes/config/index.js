@@ -1,7 +1,5 @@
 const { Router } = require("express");
 const router = Router();
-const UserRouter = require("../users");
-const AuthRouter = require("../auth");
 const { sendFailureResponse } = require("../../utils/helper/api");
 const { baseUrl } = require("../const");
 const bodyParser = require("body-parser");
@@ -9,6 +7,10 @@ const fileUpload = require("express-fileupload");
 const cors = require("cors");
 const express = require("express");
 const { app } = require("../../utils/instances");
+const AuthRouter = require("../auth");
+const UserRouter = require("../users");
+
+const routerList = [UserRouter, AuthRouter];
 
 ////// Default Path start_poinnt //////
 router.get("/", (req, res) => {
@@ -46,10 +48,15 @@ app.use(
   })
 );
 
+// console.log("routerList --=------------ ", routerList);
+
 const useCombineRoutes = () => {
   app.use(router);
-  app.use(baseUrl, UserRouter);
-  app.use(baseUrl, AuthRouter);
+
+  routerList?.length > 0 &&
+    routerList?.forEach((item) => {
+      app.use(baseUrl, item);
+    });
 
   // NOTE: Use other routers above to this comment.
   app.use((req, res) => {

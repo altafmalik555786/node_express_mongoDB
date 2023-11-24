@@ -3,10 +3,6 @@ const { Router } = require("express");
 const { endPoints } = require("../const");
 
 const router = Router();
+router.post(`${endPoints?.login}`, login);
 
-router.post(
-    `${endPoints?.login}`,
-    login
-  );
-
-  module.exports = router;
+module.exports = router;
