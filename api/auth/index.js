@@ -7,12 +7,11 @@ const {
 } = require("../../utils/helper/api");
 const bcrypt = require("bcrypt");
 const { handleCatchedError } = require("../../utils/helper/common");
-const secretKey = process.env.secretKey;
 const jwt = require("jsonwebtoken");
 const { app } = require("../../utils/instances");
 const nodemailer = require("nodemailer");
 const crypto = require("crypto");
-const { senderMail } = require("../../routes/const/config-const");
+const { senderMail, secretKey, appSpecificPass } = require("../../utils/const/config-const");
 
 const login = async (req, res) => {
   const { email, password } = req.body;
@@ -98,7 +97,7 @@ const postRequestPasswordReset = async (req, res) => {
       service: "Gmail",
       auth: {
         user: senderMail, // Your Gmail email address
-        pass: process.env.appSpecificPass, // Your Gmail password or app-specific password
+        pass: appSpecificPass, // Your Gmail password or app-specific password
       },
     });
     // Send the reset code to the user via email
