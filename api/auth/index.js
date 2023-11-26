@@ -11,7 +11,16 @@ const jwt = require("jsonwebtoken");
 const { app } = require("../../utils/instances");
 const nodemailer = require("nodemailer");
 const crypto = require("crypto");
-const { senderMail, secretKey, appSpecificPass } = require("../../utils/const/config-const");
+const {
+  senderMail,
+  secretKey,
+  appSpecificPass,
+} = require("../../utils/const/config-const");
+const {
+  MESSAGE_VERIFIED,
+  MESSAGE_INVALID_EXPIRY,
+  MESSAGE_NOT_FOUND,
+} = require("../../utils/const");
 
 const login = async (req, res) => {
   const { email, password } = req.body;
@@ -45,7 +54,7 @@ const login = async (req, res) => {
       sendFailureResponse({ res, message: "Invalid credentials" });
     }
   } catch (error) {
-    handleCatchedError({ error });
+    handleCatchedError({ res, error, at: "login" });
   }
 };
 
@@ -71,7 +80,7 @@ const registerUser = async (req, res) => {
     await data.save();
     sendSuccessResponse({ res, message: MESSAGE_CREATED("User") });
   } catch (error) {
-    handleCatchedError({ res, error, at: "/register" });
+    handleCatchedError({ res, error, at: "registerUser" });
   }
 };
 
@@ -81,7 +90,11 @@ const postRequestPasswordReset = async (req, res) => {
     const user = await UserModel.findOne({ email });
 
     if (!user) {
-      sendFailureResponse({ res, status: 404, message: "User not found" });
+      sendFailureResponse({
+        res,
+        status: 404,
+        message: `${MESSAGE_NOT_FOUND("User")} not found`,
+      });
       return;
     }
 
@@ -139,8 +152,43 @@ const postRequestPasswordReset = async (req, res) => {
   }
 };
 
+const postVerifyCode = async (req, res) => {
+  const { email, code } = req.body;
+
+  try {
+    const storedCodeDocuments = await ResetCode.find({ email });
+
+    if (storedCodeDocuments.length === 0) {
+      sendFailureResponse({
+        res,
+        status: 404,
+        message: "No reset codes found for this user",
+      });
+      return;
+    }
+
+    const codeIsValid = storedCodeDocuments.some((storedCodeDocument) => {
+      return storedCodeDocument.code === code;
+    });
+
+    if (codeIsValid) {
+      sendSuccessResponse({ res, message: MESSAGE_VERIFIED("Code") });
+      await ResetCode.deleteMany({ email });
+    } else {
+      sendFailureResponse({
+        res,
+        status: 400,
+        message: MESSAGE_INVALID_EXPIRY("Code"),
+      });
+    }
+  } catch (error) {
+    handleCatchedError({ res, error, at: "verifyCode" });
+  }
+};
+
 module.exports = {
   login,
   registerUser,
   postRequestPasswordReset,
+  postVerifyCode,
 };

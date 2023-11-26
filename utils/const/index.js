@@ -12,10 +12,18 @@ const constants = {
     MESSAGE_CREATED: (entityName = "Record") => {
         return `${entityName} has been deleted successfully.`
     },
-    MESSAGE_NOT_FOUND: (entityName) => {
+    MESSAGE_NOT_FOUND: (entityName = "Record") => {
         return `${entityName} not found.`
-    }
+    },
+    MESSAGE_VERIFIED: (entityName = "Record") => {
+        return `${entityName} has been verified successfully.`
+    },
+    MESSAGE_INVALID_EXPIRY: (entityName = "Record") => {
+        return `Invalid or expired ${entityName}!`
+    },
 } 
+
+
 
 
 module.exports = {

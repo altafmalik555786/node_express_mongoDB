@@ -6,6 +6,7 @@ const endPoints = {
   login: "/login",
   registerUser: "/register",
   requestResetPassword: "/request/reset/password",
+  verifyCode: "/verify-code",
 };
 
 module.exports = {
