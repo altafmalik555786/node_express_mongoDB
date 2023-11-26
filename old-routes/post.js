@@ -4,8 +4,8 @@ const Post = require('../model/post');
 const User = require("../model/user");
 const fs = require('fs')
 const {authMiddleware, isAdminMiddleware} = require('../utils/authMiddleware');
+const { secretKey } = require('../utils/const/config-const');
 const router = express.Router();
-const secretKey = process.env.secretKey; 
 const cloudinary = require("cloudinary").v2; // platform for upload file here.
 // Function to verify token and return decoded payload as a Promise
 function verifyToken(token, res) {
