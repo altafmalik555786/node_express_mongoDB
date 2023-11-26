@@ -1,4 +1,5 @@
 const UserModel = require("../../model/user");
+const ResetCode = require("../../model/resetEmail");
 const {
   checkValidation,
   sendFailureResponse,
@@ -9,6 +10,9 @@ const { handleCatchedError } = require("../../utils/helper/common");
 const secretKey = process.env.secretKey;
 const jwt = require("jsonwebtoken");
 const { app } = require("../../utils/instances");
+const nodemailer = require("nodemailer");
+const crypto = require("crypto");
+const { senderMail } = require("../../routes/const/config-const");
 
 const login = async (req, res) => {
   const { email, password } = req.body;
@@ -72,7 +76,72 @@ const registerUser = async (req, res) => {
   }
 };
 
+const postRequestPasswordReset = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const user = await UserModel.findOne({ email });
+
+    if (!user) {
+      sendFailureResponse({ res, status: 404, message: "User not found" });
+      return;
+    }
+
+    const verificationToken = crypto.randomBytes(20).toString("hex");
+
+    // Store the reset code in the database
+    const resetCodeDocument = new ResetCode({
+      email: email,
+      code: verificationToken,
+    });
+    await resetCodeDocument.save();
+    let transporter = await nodemailer.createTransport({
+      service: "Gmail",
+      auth: {
+        user: senderMail, // Your Gmail email address
+        pass: process.env.appSpecificPass, // Your Gmail password or app-specific password
+      },
+    });
+    // Send the reset code to the user via email
+    const mailOptions = {
+      from: `"Reset Password Code 👻" <${senderMail}>`,
+      to: email, // list of receivers
+      subject: "Email Verification Code", // Subject line
+      text: `Click this link to verify your email: ${verificationToken}`,
+    };
+
+    await transporter.sendMail(mailOptions, (error, response) => {
+      if (error) {
+        sendFailureResponse({
+          res,
+          status: 500,
+          message: "Failed to send verification email",
+        });
+      } else {
+        sendSuccessResponse({
+          res,
+          message: "Verification email sent",
+          data: verificationToken,
+        });
+      }
+    });
+  } catch (error) {
+    if (error.name === "CastError") {
+      sendFailureResponse({
+        res,
+        message: "Invalid token format",
+      });
+    } else {
+      sendFailureResponse({
+        res,
+        status: 500,
+        message: "Failed to verify email",
+      });
+    }
+  }
+};
+
 module.exports = {
   login,
   registerUser,
+  postRequestPasswordReset,
 };
