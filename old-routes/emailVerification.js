@@ -2,6 +2,7 @@ const nodemailer = require("nodemailer");
 const Token = require('../model/emailToken');
 const crypto = require('crypto');
 const { router } = require("../utils/instances");
+const { appSpecificPass } = require('../utils/const/config-const')
 
 router.post('/email-verification', async (req, res) => {
   const { email } = req.body;
@@ -19,7 +20,7 @@ router.post('/email-verification', async (req, res) => {
     service: 'Gmail',
     auth: {
       user: 'zeeshanlateef84@gmail.com', // Your Gmail email address
-      pass: process.env.appSpecificPass // Your Gmail password or app-specific password
+      pass: appSpecificPass // Your Gmail password or app-specific password
   },
   });
 
