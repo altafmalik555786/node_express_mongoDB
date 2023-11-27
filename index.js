@@ -14,6 +14,14 @@ database.once("connected", () => {
   console.log("Database Connected");
 });
 
+process.on("unhandledRejection", (err) => {
+  console.error("Unhandled Promise Rejection:", err);
+});
+
+process.on("uncaughtException", (err) => {
+  console.error("Uncaught Exception:", err);
+});
+
 useCombineRoutes();
 app.options("*", cors());
 

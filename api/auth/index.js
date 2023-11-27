@@ -38,12 +38,12 @@ const login = async (req, res) => {
     message: "Email is invalid",
   });
 
-  checkValidation({
+  await checkValidation({
     req,
     res,
     model: UserModel,
     bodyData: { email, password },
-    requiredFields: [ "email", "password" ],
+    requiredFields: ["email", "password"],
   });
 
   const isPasswordMatch = await bcrypt.compare(password, user.password);
@@ -59,7 +59,7 @@ const login = async (req, res) => {
       app.set("secret", secretKey);
       return sendSuccessResponse({
         res,
-        data: { token, ...user.toObject() },
+        data: { token, ...user.toObject()},
         message: "Login successfully",
       });
     } else {

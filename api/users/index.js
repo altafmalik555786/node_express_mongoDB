@@ -30,7 +30,6 @@ const getSingleUser = async (req, res) => {
 const updateUser = async (req, res) => {
   try {
     const { id } = req.params;
-    const { email, role } = req.body
     delete req.body.password;
     await handlePutRequest({
       req,
