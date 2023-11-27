@@ -36,7 +36,7 @@ const login = async (req, res) => {
     findOne: { email },
     model: UserModel,
     entity: "User",
-    message: "Email is invalid"
+    message: "Email is invalid",
   });
 
   checkValidation({
@@ -72,6 +72,19 @@ const login = async (req, res) => {
 const registerUser = async (req, res) => {
   try {
     const { password, email, role } = req.body;
+
+    const existingUser = await recordNotFound({
+      res,
+      findOne: { email },
+      model: UserModel,
+      entity: "User",
+      status: 400,
+    });
+
+    if (existingUser) {
+      return sendFailureResponse({ res, message: "Email already taken" });
+    }
+
     checkValidation({
       req,
       res,
@@ -79,10 +92,7 @@ const registerUser = async (req, res) => {
       bodyData: { password, email, role },
       requiredFields: [password, email, role],
     });
-    const existingUser = await UserModel.findOne({ email });
-    if (existingUser) {
-      return sendFailureResponse({ res, message: "Email already taken" });
-    }
+
     const hash = bcrypt.hashSync(password, salt);
     const data = new UserModel({
       password: hash,
