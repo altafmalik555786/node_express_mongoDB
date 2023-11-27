@@ -30,12 +30,14 @@ const getSingleUser = async (req, res) => {
 const updateUser = async (req, res) => {
   try {
     const { id } = req.params;
+    const { email, role } = req.body
     delete req.body.password;
     await handlePutRequest({
       req,
       res,
       model: Model,
       entity: "User",
+      requiredFields: [email, role],
       bodyData: { ...req.body },
     });
     const options = { new: true };

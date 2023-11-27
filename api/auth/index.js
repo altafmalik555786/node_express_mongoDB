@@ -31,19 +31,20 @@ const salt = bcrypt.genSaltSync(saltRounds);
 const login = async (req, res) => {
   const { email, password } = req.body;
 
-  const user = await recordNotFound({
-    res,
-    findOne: { email },
-    model: UserModel,
-    entity: "User",
-    message: "Email is invalid",
-  });
+  // const user = await recordNotFound({
+  //   res,
+  //   findOne: { email },
+  //   model: UserModel,
+  //   entity: "User",
+  //   message: "Email is invalid",
+  // });
 
   checkValidation({
     req,
     res,
     model: UserModel,
     bodyData: { email, password },
+    requiredFields: [ "email", "password" ],
   });
   const isPasswordMatch = await bcrypt.compare(password, user.password);
   try {

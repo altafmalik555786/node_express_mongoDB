@@ -153,9 +153,16 @@ const checkValidation = ({
   }
 
   if (requiredFields?.length > 0) {
-    const remainingRequiredKeys = requiredFields.filter(
-      (element) => !Object.keys(incomingData).includes(element)
-    );
+    const remainingRequiredKeys = requiredFields?.filter((element) => {
+      if (!Object.keys(incomingData).includes(element)) {
+        return element;
+      } else {
+        if (bodyData && incomingData[element] === undefined) {
+          return element;
+        }
+      }
+    });
+
     remainingRequiredKeys?.length > 0 &&
       remainingRequiredKeys?.forEach((item) => {
         sendFailureResponse({
