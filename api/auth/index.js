@@ -4,6 +4,7 @@ const {
   checkValidation,
   sendFailureResponse,
   sendSuccessResponse,
+  recordNotFound,
 } = require("../../utils/helper/api");
 const bcrypt = require("bcrypt");
 const { handleCatchedError } = require("../../utils/helper/common");
@@ -195,15 +196,13 @@ const postVerifyCode = async (req, res) => {
 const postResetPassword = async (req, res) => {
   try {
     const { email, password } = req.body;
-    const user = await UserModel.findOne({ email });
-    if (!user) {
-      sendFailureResponse({
-        res,
-        status: 404,
-        message: MESSAGE_NOT_FOUND("User"),
-      });
-      return;
-    }
+
+    const user = await recordNotFound({
+      res,
+      findOne: { email },
+      model: UserModel,
+      entity: "User",
+    });
 
     const hash = bcrypt.hashSync(password, salt);
     user.password = hash;
