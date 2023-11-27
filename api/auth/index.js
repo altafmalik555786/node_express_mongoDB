@@ -30,10 +30,15 @@ const salt = bcrypt.genSaltSync(saltRounds);
 
 const login = async (req, res) => {
   const { email, password } = req.body;
-  const user = await UserModel.findOne({ email });
-  if (!user) {
-    sendFailureResponse({ res, status: 404, message: "Email is invalid" });
-  }
+
+  const user = await recordNotFound({
+    res,
+    findOne: { email },
+    model: UserModel,
+    entity: "User",
+    message: "Email is invalid"
+  });
+
   checkValidation({
     req,
     res,

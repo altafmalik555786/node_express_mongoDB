@@ -77,6 +77,7 @@ const recordNotFound = async ({
   findOne = {},
   id = null,
   entity = "Record",
+  message = "Record is not found",
 }) => {
   const record = await model.findOne(findOne);
 
@@ -84,7 +85,7 @@ const recordNotFound = async ({
     sendFailureResponse({
       res,
       status: 404,
-      message: MESSAGE_NOT_FOUND(entity),
+      message: message || MESSAGE_NOT_FOUND(entity),
     });
     throw new Error(ERROR_RECORD_NOT_FOUND);
   } else {
