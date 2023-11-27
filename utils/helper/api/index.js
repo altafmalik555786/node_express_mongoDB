@@ -153,24 +153,23 @@ const checkValidation = ({
   }
 
   if (requiredFields?.length > 0) {
-    const remainingRequiredKeys = requiredFields?.filter((element) => {
+    requiredFields.forEach((element) => {
       if (!Object.keys(incomingData).includes(element)) {
-        return element;
+        sendFailureResponse({
+          res,
+          message: `${toCapitalCase(element)} is required`,
+        });
+        throw new Error(ERROR_SERVER_ERROR);
       } else {
         if (bodyData && incomingData[element] === undefined) {
-          return element;
+          sendFailureResponse({
+            res,
+            message: `${toCapitalCase(element)} is required`,
+          });
+          throw new Error(ERROR_SERVER_ERROR);
         }
       }
     });
-
-    remainingRequiredKeys?.length > 0 &&
-      remainingRequiredKeys?.forEach((item) => {
-        sendFailureResponse({
-          res,
-          message: `${toCapitalCase(item)} is required`,
-        });
-        throw new Error(ERROR_SERVER_ERROR);
-      });
   }
 
   const invalidKeys = Object.keys(incomingData).filter(
