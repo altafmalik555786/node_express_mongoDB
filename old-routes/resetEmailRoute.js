@@ -8,40 +8,6 @@ const crypto = require("crypto");
 const saltRounds = 10;
 const salt = bcrypt.genSaltSync(saltRounds);
 
-// POST route for verifying password reset code
-router.post("/verifyPasswordResetCode", async (req, res) => {
-  const { email, code } = req.body;
-
-  try {
-    const storedCodeDocuments = await ResetCode.find({ email });
-
-    if (storedCodeDocuments.length === 0) {
-      res.status(400).send({ message: "No reset codes found for this user" });
-      return;
-    }
-
-    const codeIsValid = storedCodeDocuments.some((storedCodeDocument) => {
-      return storedCodeDocument.code === code;
-    });
-
-    if (codeIsValid) {
-      // Code is valid, allow the user to reset their password
-      res
-        .status(200)
-        .send({
-          message: "Code verified, you can reset your password",
-          success: true,
-        });
-
-      // Delete all reset codes associated with the user
-      await ResetCode.deleteMany({ email });
-    } else {
-      res.status(400).send({ message: "Invalid or expired code" });
-    }
-  } catch (error) {
-    res.status(400).json({ message: error.message });
-  }
-});
 
 //reset  API
 router.post("/resetPassword", async (req, res) => {
