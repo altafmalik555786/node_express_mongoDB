@@ -20,7 +20,6 @@ const {
 const {
   MESSAGE_VERIFIED,
   MESSAGE_INVALID_EXPIRY,
-  MESSAGE_NOT_FOUND,
   MESSAGE_UPDATED,
   MESSAGE_CREATED,
 } = require("../../utils/const");
@@ -31,13 +30,13 @@ const salt = bcrypt.genSaltSync(saltRounds);
 const login = async (req, res) => {
   const { email, password } = req.body;
 
-  // const user = await recordNotFound({
-  //   res,
-  //   findOne: { email },
-  //   model: UserModel,
-  //   entity: "User",
-  //   message: "Email is invalid",
-  // });
+  const user = await recordNotFound({
+    res,
+    findOne: { email },
+    model: UserModel,
+    entity: "User",
+    message: "Email is invalid",
+  });
 
   checkValidation({
     req,
@@ -46,6 +45,7 @@ const login = async (req, res) => {
     bodyData: { email, password },
     requiredFields: [ "email", "password" ],
   });
+
   const isPasswordMatch = await bcrypt.compare(password, user.password);
   try {
     if (user.email && isPasswordMatch) {
