@@ -75,7 +75,7 @@ const recordNotFound = async ({
   model,
   findOne = {},
   entity = "Record",
-  message = "Record is not found",
+  message = "",
   status = 404,
 }) => {
   const record = await model.findOne(findOne);

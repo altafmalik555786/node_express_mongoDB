@@ -109,20 +109,16 @@ const registerUser = async (req, res) => {
 const postRequestPasswordReset = async (req, res) => {
   try {
     const { email } = req.body;
-    const user = await UserModel.findOne({ email });
 
-    if (!user) {
-      sendFailureResponse({
-        res,
-        status: 404,
-        message: `${MESSAGE_NOT_FOUND("User")} not found`,
-      });
-      return;
-    }
+    await recordNotFound({
+      res,
+      findOne: { email },
+      model: UserModel,
+      entity: "User",
+    });
 
     const verificationToken = crypto.randomBytes(20).toString("hex");
 
-    // Store the reset code in the database
     const resetCodeDocument = new ResetCode({
       email: email,
       code: verificationToken,
@@ -135,7 +131,6 @@ const postRequestPasswordReset = async (req, res) => {
         pass: appSpecificPass, // Your Gmail password or app-specific password
       },
     });
-    // Send the reset code to the user via email
     const mailOptions = {
       from: `"Reset Password Code 👻" <${senderMail}>`,
       to: email, // list of receivers
