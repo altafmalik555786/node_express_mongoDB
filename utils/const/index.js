@@ -10,7 +10,7 @@ const constants = {
         return `${entityName} has been updated successfully.`
     },
     MESSAGE_CREATED: (entityName = "Record") => {
-        return `${entityName} has been deleted successfully.`
+        return `${entityName} has been created successfully.`
     },
     MESSAGE_NOT_FOUND: (entityName = "Record") => {
         return `${entityName} not found.`

@@ -20,7 +20,12 @@ const {
   MESSAGE_VERIFIED,
   MESSAGE_INVALID_EXPIRY,
   MESSAGE_NOT_FOUND,
+  MESSAGE_UPDATED,
+  MESSAGE_CREATED,
 } = require("../../utils/const");
+
+const saltRounds = 10;
+const salt = bcrypt.genSaltSync(saltRounds);
 
 const login = async (req, res) => {
   const { email, password } = req.body;
@@ -66,13 +71,14 @@ const registerUser = async (req, res) => {
       res,
       model: UserModel,
       bodyData: { password, email, role },
+      requiredFields: [password, email, role],
     });
     const existingUser = await UserModel.findOne({ email });
     if (existingUser) {
       return sendFailureResponse({ res, message: "Email already taken" });
     }
     const hash = bcrypt.hashSync(password, salt);
-    const data = new Model({
+    const data = new UserModel({
       password: hash,
       email,
       role,
@@ -182,7 +188,31 @@ const postVerifyCode = async (req, res) => {
       });
     }
   } catch (error) {
-    handleCatchedError({ res, error, at: "verifyCode" });
+    handleCatchedError({ res, error, at: "postVerifyCode" });
+  }
+};
+
+const postResetPassword = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const user = await UserModel.findOne({ email });
+    if (!user) {
+      sendFailureResponse({
+        res,
+        status: 404,
+        message: MESSAGE_NOT_FOUND("User"),
+      });
+      return;
+    }
+
+    const hash = bcrypt.hashSync(password, salt);
+    user.password = hash;
+
+    await user.save();
+
+    sendSuccessResponse({ res, message: MESSAGE_UPDATED("Password") });
+  } catch (error) {
+    handleCatchedError({ res, error, at: "postResetPassword" });
   }
 };
 
@@ -191,4 +221,5 @@ module.exports = {
   registerUser,
   postRequestPasswordReset,
   postVerifyCode,
+  postResetPassword,
 };

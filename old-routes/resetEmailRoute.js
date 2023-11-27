@@ -1,13 +1,9 @@
 const express = require("express");
 const router = express.Router();
-const nodemailer = require("nodemailer");
 const User = require("../model/user");
-const ResetCode = require("../model/resetEmail");
 const bcrypt = require("bcrypt");
-const crypto = require("crypto");
 const saltRounds = 10;
 const salt = bcrypt.genSaltSync(saltRounds);
-
 
 //reset  API
 router.post("/resetPassword", async (req, res) => {
