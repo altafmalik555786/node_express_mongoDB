@@ -91,7 +91,7 @@ const registerUser = async (req, res) => {
       res,
       model: UserModel,
       bodyData: { password, email, role },
-      requiredFields: [password, email, role],
+      requiredFields: ["password", "email", "role"],
     });
 
     const hash = bcrypt.hashSync(password, salt);

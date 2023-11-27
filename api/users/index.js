@@ -37,7 +37,7 @@ const updateUser = async (req, res) => {
       res,
       model: Model,
       entity: "User",
-      requiredFields: [email, role],
+      requiredFields: ["email", "role"],
       bodyData: { ...req.body },
     });
     const options = { new: true };
