@@ -9,6 +9,7 @@ const endPoints = {
   verifyCode: "/verify/code",
   resetPassword: "/reset/password",
   verifyEmail: "/verify/email",
+  verifyEmailSuccess: "/verify/email/success",
 };
 
 module.exports = {

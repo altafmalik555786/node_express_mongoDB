@@ -110,6 +110,14 @@ const registerUser = async (req, res) => {
 
 const postVerifyEmail = async (req, res) => {
   const { email } = req.body;
+
+  await recordNotFound({
+    res,
+    findOne: { email },
+    model: UserModel,
+    entity: "Email",
+  });
+
   const verificationToken = crypto.randomBytes(20).toString("hex");
   const expiration = new Date(new Date().getTime() + 24 * 60 * 60 * 1000); // 24 hours from now
 
@@ -157,6 +165,32 @@ const postVerifyEmail = async (req, res) => {
     });
   }
 };
+
+const getVeriyEmailSuccess = async (req, res) => {
+  const { token } = req.query;
+  try {
+    const storedToken = await recordNotFound({
+      res,
+      findOne: { token },
+      model: Token,
+      entity: "Token",
+    });
+    if (storedToken && storedToken.expiration > new Date()) {
+      await Token.deleteMany({ email: storedToken.email });
+      sendSuccessResponse({ res, message: "Email has been verified" })
+    } else {
+      sendFailureResponse({ res, message: MESSAGE_INVALID_EXPIRY("Email token") })
+    }
+  } catch (error) {
+    handleCatchedError({
+      res,
+      error,
+      status: 500,
+      at: "getVeriyEmailSuccess",
+      message: "Email verification failed",
+    });
+  }
+}
 
 const postRequestPasswordReset = async (req, res) => {
   try {
@@ -284,4 +318,5 @@ module.exports = {
   postVerifyCode,
   postResetPassword,
   postVerifyEmail,
+  getVeriyEmailSuccess
 };
