@@ -3,11 +3,11 @@ const jwt = require('jsonwebtoken');
 const Post = require('../model/post');
 const User = require("../model/user");
 const fs = require('fs')
-const {authMiddleware, isAdminMiddleware} = require('../utils/authMiddleware');
+const { authMiddleware, isAdminMiddleware } = require('../utils/authMiddleware');
 const { secretKey } = require('../utils/const/config-const');
 const router = express.Router();
 const cloudinary = require("cloudinary").v2; // platform for upload file here.
-// Function to verify token and return decoded payload as a Promise
+
 function verifyToken(token, res) {
   return new Promise((resolve, reject) => {
     jwt.verify(token, secretKey, function (err, decoded) {
@@ -30,11 +30,11 @@ cloudinary.config({
 // Create a new post for a user
 router.post("/createPost", authMiddleware, async (req, res) => {
   try {
-const decoded = await verifyToken(req.headers.authorization.split(' ')[1]); // Authorization: 'Bearer TOKEN'
+    const decoded = await verifyToken(req.headers.authorization.split(' ')[1]); // Authorization: 'Bearer TOKEN'
     const userId = decoded.id;
     const { title, content } = req.body;
-    
-const user = await User.findById(userId);
+
+    const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
@@ -51,7 +51,7 @@ const user = await User.findById(userId);
     const uploadResult = await cloudinary.uploader.upload(tempFilePath, {
       resource_type: "auto", // or specify the appropriate resource type
     });
-      // Delete the temporary file
+    // Delete the temporary file
     fs.unlinkSync(tempFilePath);
 
     console.log("tempFilePath", tempFilePath)
@@ -72,7 +72,7 @@ const user = await User.findById(userId);
   }
 });
 // GET all posts paginated
-router.get('/getAllPostsPaginated',authMiddleware,  async (req, res) => {
+router.get('/getAllPostsPaginated', authMiddleware, async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const pageSize = parseInt(req.query.pageSize) || 10;
 
@@ -82,14 +82,14 @@ router.get('/getAllPostsPaginated',authMiddleware,  async (req, res) => {
 
     const posts = await Post.find().populate("user", "-password -email -contact").skip((page - 1) * pageSize).limit(pageSize);
     res.json({
-      success:true,
+      success: true,
       posts,
       page,
       pageSize,
       totalPages,
     });
   } catch (error) {
-    res.status(500).json({ errorDetail:error, error: 'Internal Server Error' });
+    res.status(500).json({ errorDetail: error, error: 'Internal Server Error' });
   }
 });
 
@@ -121,11 +121,11 @@ router.post("/deletePost", authMiddleware, async (req, res) => {
     }
 
     // Delete the post
-    cloudinary.uploader.destroy(imgId, async(destroyErr, destroyResult) => {
+    cloudinary.uploader.destroy(imgId, async (destroyErr, destroyResult) => {
       if (destroyErr) {
         console.error('Error deleting the image from Cloudinary:', destroyErr);
       }
-      await  Post.deleteOne({ _id: id });
+      await Post.deleteOne({ _id: id });
       return res.status(200).json({ success: true, message: 'Post deleted successfully' });
     });
   } catch (error) {
@@ -160,7 +160,7 @@ router.post("/likePost", async (req, res) => {
 });
 
 // Comment on a post
-router.post("/commentPost",  async(req, res) => {
+router.post("/commentPost", async (req, res) => {
   try {
     const { postId, comment } = req.body;
     const decoded = await verifyToken(req.headers.authorization.split(' ')[1]); // Authorization: 'Bearer TOKEN'
@@ -193,19 +193,19 @@ router.get('/search/post', authMiddleware, async (req, res) => {
 
   try {
     // Perform the search using regular expressions
-    if(searchTerm === ''){
-      res.status(200).json({ success: true, results: [] }) 
-    }else{
+    if (searchTerm === '') {
+      res.status(200).json({ success: true, results: [] })
+    } else {
       const searchResults = await Post.find({
         $or: [
           { title: { $regex: searchTerm, $options: 'i' } }, // Case-insensitive match on the 'name' field
         ],
       }).populate("user", "-password -email -contact");
-  
+
       res.json({ success: true, results: searchResults });
     }
   } catch (error) {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
-module.exports = {router};
+module.exports = { router };

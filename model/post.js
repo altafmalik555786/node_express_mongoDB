@@ -4,6 +4,7 @@ const postSchema = new mongoose.Schema({
   title: String,
   content: String,
   img:String,
+  files:String,
   imgId:String,
   creationAt: { type: Date, default: Date.now },
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, // Reference to User model

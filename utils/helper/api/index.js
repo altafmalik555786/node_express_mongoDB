@@ -1,10 +1,15 @@
 const mongoose = require("mongoose");
+const jwt = require('jsonwebtoken');
+const UserModel = require('../../../model/user')
+
 const {
   MESSAGE_NOT_FOUND,
   ERROR_INVALID_ID,
   ERROR_RECORD_NOT_FOUND,
   ERROR_SERVER_ERROR,
 } = require("../../const");
+const { secretKey } = require("../../const/config-const");
+const { getToken } = require("../common");
 
 const successResponse = ({ data = undefined, message = null }) => {
   if (data === null) {
@@ -66,6 +71,8 @@ const isNotFoundByID = async ({ req, res, model, id = null, entity = "" }) => {
         status: 404,
       });
       throw new Error(ERROR_RECORD_NOT_FOUND);
+    } else {
+      return existObj
     }
   }
 };
@@ -178,9 +185,8 @@ const checkValidation = ({
   if (invalidKeys.length > 0) {
     sendFailureResponse({
       res,
-      message: `${invalidKeys?.map((item) => ` ${item}`)} ${
-        invalidKeys?.length > 1 ? "are" : "is"
-      } invalid ${invalidKeys?.length > 1 ? "keys" : "key"}`,
+      message: `${invalidKeys?.map((item) => ` ${item}`)} ${invalidKeys?.length > 1 ? "are" : "is"
+        } invalid ${invalidKeys?.length > 1 ? "keys" : "key"}`,
     });
     throw new Error(ERROR_SERVER_ERROR);
   }
@@ -217,6 +223,23 @@ const handlePutRequest = async ({
   }
 };
 
+const verifyToken = (req, res) => {
+  return new Promise((resolve, reject) => {
+    jwt.verify(getToken(req), secretKey, function (err, decoded) {
+      if (err) {
+        sendFailureResponse({ res, message: MESSAGE_INVALID_EXPIRY("Token") })
+      } else {
+        resolve(decoded);
+      }
+    });
+  });
+}
+
+const getUserFromToken = async (req, res) => {
+  const decoded = await verifyToken(req, res);
+  return await isNotFoundByID({ req, res, model: UserModel, id: decoded.id, entity: 'User' })
+}
+
 module.exports = {
   successResponse,
   failureResponse,
@@ -227,4 +250,6 @@ module.exports = {
   isAlreadyExistById,
   handlePutRequest,
   recordNotFound,
+  getUserFromToken,
+  verifyToken,
 };

@@ -7,8 +7,9 @@ const express = require("express");
 const { app, router } = require("../../utils/instances");
 const { UserRouter } = require("../users");
 const { AuthRouter } = require("../auth");
+const { postsRouter } = require("../posts");
 
-const routerList = [UserRouter, AuthRouter];
+const routerList = [UserRouter, AuthRouter, postsRouter];
 
 ////// Default Path start_poinnt //////
 router.get("/", (req, res) => {

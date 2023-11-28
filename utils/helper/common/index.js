@@ -1,5 +1,4 @@
-const mongoose = require('mongoose');
-const { ERROR_INVALID_ID, ERROR_RECORD_NOT_FOUND, ERROR_SERVER_ERROR } = require('../../const');
+const { ERROR_INVALID_ID, ERROR_RECORD_NOT_FOUND, ERROR_SERVER_ERROR, MESSAGE_INVALID_EXPIRY } = require('../../const');
 const { sendFailureResponse } = require('../api');
 
 const handleCatchedError = ({
@@ -69,9 +68,14 @@ const findIntersectionObjects = (obj1, obj2) => {
   return result;
 };
 
+const getToken = (req) => {
+  return req.headers.authorization.split(' ')[1]
+}
+
 module.exports = {
   handleCatchedError,
   compareObjectsDeepEqual,
   toCapitalCase,
-  findIntersectionObjects
+  findIntersectionObjects,
+  getToken
 };
