@@ -1,5 +1,6 @@
 const UserModel = require("../../model/user");
 const ResetCode = require("../../model/resetEmail");
+const Token = require('../../model/emailToken')
 const {
   checkValidation,
   sendFailureResponse,
@@ -59,7 +60,7 @@ const login = async (req, res) => {
       app.set("secret", secretKey);
       return sendSuccessResponse({
         res,
-        data: { token, ...user.toObject()},
+        data: { token, ...user.toObject() },
         message: "Login successfully",
       });
     } else {
@@ -104,6 +105,56 @@ const registerUser = async (req, res) => {
     sendSuccessResponse({ res, message: MESSAGE_CREATED("User") });
   } catch (error) {
     handleCatchedError({ res, error, at: "registerUser" });
+  }
+};
+
+const postVerifyEmail = async (req, res) => {
+  const { email } = req.body;
+  const verificationToken = crypto.randomBytes(20).toString("hex");
+  const expiration = new Date(new Date().getTime() + 24 * 60 * 60 * 1000); // 24 hours from now
+
+  // Store the verification token in the database
+  const newToken = new Token({
+    token: verificationToken,
+    email: email,
+    expiration: expiration,
+  });
+
+  let transporter = await nodemailer.createTransport({
+    service: "Gmail",
+    auth: {
+      user: senderMail, // Your Gmail email address
+      pass: appSpecificPass, // Your Gmail password or app-specific password
+    },
+  });
+
+  try {
+    await newToken.save();
+
+    // Generate the verification link
+    const verificationLink = `https://coolblogging.netlify.app/#/verify-register-email/?token=${verificationToken}`;
+    const mailOptions = {
+      from: `'Hello guys 👻' <${senderMail}>`, // sender address
+      to: email, // list of receivers
+      subject: "Email Verification", // Subject line
+      text: `Click this link to verify your email: ${verificationLink}`,
+    };
+
+    await transporter.sendMail(mailOptions, (error, response) => {
+      if (error) {
+        sendFailureResponse({ res, message: "Failed to send verification email" })
+      } else {
+        sendSuccessResponse({ res, message: "Verification link has been sent to your E-mail.", data: verificationLink })
+      }
+    });
+  } catch (error) {
+    handleCatchedError({
+      res,
+      error,
+      status: 500,
+      at: "postVerifyEmail",
+      message: "Failed to store verification token",
+    });
   }
 };
 
@@ -232,4 +283,5 @@ module.exports = {
   postRequestPasswordReset,
   postVerifyCode,
   postResetPassword,
+  postVerifyEmail,
 };

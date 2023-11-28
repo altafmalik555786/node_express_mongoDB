@@ -8,6 +8,7 @@ const endPoints = {
   requestResetPassword: "/request/reset/password",
   verifyCode: "/verify/code",
   resetPassword: "/reset/password",
+  verifyEmail: "/verify/email",
 };
 
 module.exports = {
