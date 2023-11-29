@@ -6,7 +6,7 @@ const postSchema = new mongoose.Schema({
   img:String,
   files:String,
   imgId:String,
-  creationAt: { type: Date, default: Date.now },
+  createdAt: { type: Date, default: Date.now },
   user: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, // Reference to User model
   likes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }], // Array to store user IDs who liked the post
   comments: [
@@ -17,5 +17,7 @@ const postSchema = new mongoose.Schema({
     },
   ],
 });
+
+
 
 module.exports = mongoose.model('Post', postSchema)

@@ -10,17 +10,20 @@ const {
   ERROR_INVALID_ID,
   ERROR_RECORD_NOT_FOUND,
   ERROR_SERVER_ERROR,
+  CON_IDENTITY,
+  DEFAULT_PARAM_PAGE_SIZE,
 } = require("../../const");
 const { secretKey } = require("../../const/config-const");
 const { getToken } = require("../common");
 
-const successResponse = ({ data = undefined, message = null }) => {
+const successResponse = ({ data = undefined, message = null, pagination = undefined }) => {
   if (data === null) {
     throw new Error("error");
   }
   return {
     success: true,
     message,
+    pagination,
     data,
   };
 };
@@ -37,9 +40,10 @@ const sendSuccessResponse = ({
   status = 200,
   data = undefined,
   message = null,
+  pagination = undefined
 }) => {
   if (res) {
-    res.status(status).send(successResponse({ data, message }));
+    res.status(status).send(successResponse({ data, message, pagination }));
   } else {
     throw new Error(
       "Res is null, please send res key to sendSuccessResponse({res: ??})"
@@ -248,11 +252,37 @@ const handleCloudinaryFiles = async (req) => {
   const tempFilePath = req.files?.files.name;
   fs.writeFileSync(tempFilePath, picture);
   const uploadResult = await cloudinary.uploader.upload(tempFilePath, {
-      resource_type: "auto",
+    resource_type: "auto",
   });
   fs.unlinkSync(tempFilePath);
   return uploadResult
 }
+
+const getPaginatedData = async ({ req, model, populate = [] }) => {
+  const page = parseInt(req.query.page) || DEFAULT_PARAM_PAGE;
+  const pageSize = parseInt(req.query.pageSize) || DEFAULT_PARAM_PAGE_SIZE;
+  try {
+    let query = model.find();
+    if (populate?.length > 0) {
+      query = query.populate(...populate);
+    }
+    const total = await model.countDocuments();
+    const totalPages = Math.ceil(total / pageSize);
+    const data = await query
+      .skip((page - 1) * pageSize)
+      .limit(pageSize);
+    const pagination = {
+      page,
+      pageSize,
+      totalPages,
+      total
+    };
+    return { data, pagination };
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
 
 module.exports = {
   successResponse,
@@ -267,4 +297,5 @@ module.exports = {
   getUserFromToken,
   verifyToken,
   handleCloudinaryFiles,
+  getPaginatedData,
 };

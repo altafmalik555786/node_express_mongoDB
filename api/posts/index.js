@@ -1,6 +1,6 @@
 const Post = require("../../model/post");
 const { MESSAGE_CREATED } = require("../../utils/const");
-const { checkValidation, sendSuccessResponse, getUserFromToken, handleCloudinaryFiles } = require("../../utils/helper/api");
+const { checkValidation, sendSuccessResponse, getUserFromToken, handleCloudinaryFiles, getPaginatedData } = require("../../utils/helper/api");
 const { handleCatchedError } = require("../../utils/helper/common");
 
 const postCreatePosts = async (req, res) => {
@@ -17,6 +17,16 @@ const postCreatePosts = async (req, res) => {
     }
 }
 
+const getAllPosts = async (req, res) => {
+    try {
+        const data = await getPaginatedData({ req, model: Post, populate: ["user", "-password -email -contact"]})
+        sendSuccessResponse({ res, ...data })
+    } catch (error) {
+        handleCatchedError({ res, error, at: "getAllPosts" })
+    }
+};
+
 module.exports = {
-    postCreatePosts
+    postCreatePosts,
+    getAllPosts
 }
