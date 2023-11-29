@@ -21,6 +21,7 @@ const constants = {
     MESSAGE_INVALID_EXPIRY: (entityName = "Record") => {
         return `Invalid or expired ${entityName}!`
     },
+    CON_IDENTITY: "====================================================="
 } 
 
 

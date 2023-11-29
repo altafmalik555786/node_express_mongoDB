@@ -1,6 +1,9 @@
 const mongoose = require("mongoose");
 const jwt = require('jsonwebtoken');
 const UserModel = require('../../../model/user')
+const fs = require('fs')
+const cloudinary = require('cloudinary').v2;
+
 
 const {
   MESSAGE_NOT_FOUND,
@@ -240,6 +243,17 @@ const getUserFromToken = async (req, res) => {
   return await isNotFoundByID({ req, res, model: UserModel, id: decoded.id, entity: 'User' })
 }
 
+const handleCloudinaryFiles = async (req) => {
+  const picture = req.files.files.data;
+  const tempFilePath = req.files?.files.name;
+  fs.writeFileSync(tempFilePath, picture);
+  const uploadResult = await cloudinary.uploader.upload(tempFilePath, {
+      resource_type: "auto",
+  });
+  fs.unlinkSync(tempFilePath);
+  return uploadResult
+}
+
 module.exports = {
   successResponse,
   failureResponse,
@@ -252,4 +266,5 @@ module.exports = {
   recordNotFound,
   getUserFromToken,
   verifyToken,
+  handleCloudinaryFiles,
 };
