@@ -27,50 +27,6 @@ cloudinary.config({
   api_secret: "a0Mw1XIVPe-EkEflZeKuykb8iHk",
 });
 
-// Create a new post for a user
-router.post("/createPost", authMiddleware, async (req, res) => {
-  try {
-    const decoded = await verifyToken(req.headers.authorization.split(' ')[1]); // Authorization: 'Bearer TOKEN'
-    const userId = decoded.id;
-    const { title, content } = req.body;
-
-    const user = await User.findById(userId);
-    if (!user) {
-      return res.status(404).json({ message: 'User not found' });
-    }
-
-    if (!req.files || !req.files.photo) {
-      return res.status(400).json({ message: 'Image file not provided' });
-    }
-
-    const picture = req.files.photo.data;
-    const tempFilePath = 'temp_file.jpg';
-    fs.writeFileSync(tempFilePath, picture);
-    // Upload the image to Cloudinary
-    // const uploadResult = await cloudinary.uploader.upload(picture.tempFilePath);
-    const uploadResult = await cloudinary.uploader.upload(tempFilePath, {
-      resource_type: "auto", // or specify the appropriate resource type
-    });
-    // Delete the temporary file
-    fs.unlinkSync(tempFilePath);
-
-    console.log("tempFilePath", tempFilePath)
-
-    const post = new Post({
-      title,
-      content,
-      user: user._id,
-      img: uploadResult.secure_url,
-      imgId: uploadResult.public_id,
-    });
-
-    await post.save();
-
-    return res.status(201).json({ success: true, message: 'Blog created successfully' });
-  } catch (error) {
-    return res.status(500).json({ message: error.message });
-  }
-});
 // GET all posts paginated
 router.get('/getAllPostsPaginated', authMiddleware, async (req, res) => {
   const page = parseInt(req.query.page) || 1;
