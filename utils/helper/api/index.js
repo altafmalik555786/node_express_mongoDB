@@ -12,10 +12,14 @@ const {
   DEFAULT_PARAM_PAGE_SIZE,
   DEFAULT_PARAM_PAGE,
   DEFAULT_PARAM_LIMIT,
+  CON_IDENTITY,
 } = require("../../const");
 const { secretKey } = require("../../const/config-const");
-const { getToken, emitter } = require("../common");
+const { getToken, emitter, eventEmitter } = require("../common");
 
+eventEmitter.on('sendFailureResponse', (data) => {
+  sendFailureResponse(data);
+});
 
 const successResponse = ({ data = undefined, message = null, pagination = undefined }) => {
   if (data === null) {
