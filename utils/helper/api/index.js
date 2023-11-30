@@ -272,7 +272,7 @@ const getPaginatedData = async ({ req, res = null, model, populate = [] }) => {
     if (populate?.length > 0) {
       query = query.populate(...populate);
     }
-    const total = await model.countDocuments();
+    let total = await model.countDocuments();
     if (limitedTotal > 0) {
       total = Math.min(total, limitedTotal);
     }

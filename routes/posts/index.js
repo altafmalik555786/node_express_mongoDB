@@ -1,6 +1,6 @@
 const { endPoints } = require("../const/index");
 const {
-    authMiddleware,
+    authMiddleware, isAdminMiddleware,
 } = require("../../utils/authMiddleware");
 const { router } = require("../../utils/instances");
 const { postCreatePosts, getAllPosts } = require("../../api/posts");

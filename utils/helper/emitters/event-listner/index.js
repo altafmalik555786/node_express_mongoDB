@@ -1,27 +1,23 @@
-const { CON_IDENTITY } = require('../../../const')
+const { emitter } = require('../../../instances')
 const { sendFailureResponse } = require('../../api')
-const { emitCreator } = require('../../common')
 
-const iterateEmitterListner = [
-    {
-        event: "sendFailureResponse",
-        eventFunc: sendFailureResponse
-    }
-]
+const eventListnerFunction = () => {
 
-// iterateEmitterListner.forEach((item) => {
-//     // if (emitter) {
-//     emitter.on(`sendFailureResponse`, (data) => {
-//         console.log(CON_IDENTITY, data)
-//         item?.eventFunc(data)
-//     })
-//     // }
-// })
+    const iterateEmitterListner = [
+        {
+            event: "sendFailureResponse",
+            eventFunc: sendFailureResponse
+        }
+    ]
 
+    iterateEmitterListner.forEach((item) => {
+        emitter.on(`sendFailureResponse`, (data) => {
+            item?.eventFunc(data)
+        })
+    })
 
-emitCreator.on(`sendFailureResponse`, (data) => {
-    console.log(CON_IDENTITY, data)
-    sendFailureResponse(data)
-})
+}
+
+module.exports = eventListnerFunction
 
 
