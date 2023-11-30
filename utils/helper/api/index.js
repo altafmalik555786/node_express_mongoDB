@@ -16,9 +16,6 @@ const {
 const { secretKey } = require("../../const/config-const");
 const { getToken, emitter } = require("../common");
 
-emitter.on('sendFailureResponse', (data) => {
-  sendFailureResponse(data)
-})
 
 const successResponse = ({ data = undefined, message = null, pagination = undefined }) => {
   if (data === null) {

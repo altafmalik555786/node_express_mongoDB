@@ -1,5 +1,5 @@
-const { ERROR_INVALID_ID, ERROR_RECORD_NOT_FOUND, ERROR_SERVER_ERROR } = require('../../const');
-const { emitter } = require('../../instances/index')
+const { ERROR_INVALID_ID, ERROR_RECORD_NOT_FOUND, ERROR_SERVER_ERROR, CON_IDENTITY } = require('../../const');
+const { emitter } = require('../../instances/index');
 
 const handleCatchedError = ({
   error,
@@ -18,6 +18,7 @@ const handleCatchedError = ({
 
   if (![ERROR_INVALID_ID, ERROR_RECORD_NOT_FOUND, ERROR_SERVER_ERROR]?.includes(error?.message)) {
     if (res) {
+      console.log(CON_IDENTITY + "emitter.emit('sendFailureResponse', { res, status, message })", )
       emitter.emit('sendFailureResponse', { res, status, message })
     }
   }
@@ -78,5 +79,4 @@ module.exports = {
   toCapitalCase,
   findIntersectionObjects,
   getToken,
-  emitter
 };
