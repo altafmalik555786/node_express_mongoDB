@@ -19,8 +19,7 @@ const postCreatePosts = async (req, res) => {
 
 const getAllPosts = async (req, res) => {
     try {
-        const data = await getPaginatedData({ req, model: Post, populate: ["user", "-password -email -contact"]})
-        sendSuccessResponse({ res, ...data })
+        await getPaginatedData({ req, res, model: Post, populate: ["user", "-password -email -contact"]})
     } catch (error) {
         handleCatchedError({ res, error, at: "getAllPosts" })
     }

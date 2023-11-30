@@ -12,6 +12,8 @@ const {
   ERROR_SERVER_ERROR,
   CON_IDENTITY,
   DEFAULT_PARAM_PAGE_SIZE,
+  DEFAULT_PARAM_PAGE,
+  DEFAULT_PARAM_LIMIT,
 } = require("../../const");
 const { secretKey } = require("../../const/config-const");
 const { getToken } = require("../common");
@@ -258,15 +260,19 @@ const handleCloudinaryFiles = async (req) => {
   return uploadResult
 }
 
-const getPaginatedData = async ({ req, model, populate = [] }) => {
+const getPaginatedData = async ({ req, res = null, model, populate = [] }) => {
   const page = parseInt(req.query.page) || DEFAULT_PARAM_PAGE;
+  const limitedTotal = parseInt(req.query.limit) || DEFAULT_PARAM_LIMIT;
   const pageSize = parseInt(req.query.pageSize) || DEFAULT_PARAM_PAGE_SIZE;
   try {
     let query = model.find();
     if (populate?.length > 0) {
       query = query.populate(...populate);
     }
-    const total = await model.countDocuments();
+    let total = await model.countDocuments();
+    if (limitedTotal > 0) {
+      total = Math.min(total, limitedTotal);
+    }
     const totalPages = Math.ceil(total / pageSize);
     const data = await query
       .skip((page - 1) * pageSize)
@@ -277,7 +283,10 @@ const getPaginatedData = async ({ req, model, populate = [] }) => {
       totalPages,
       total
     };
-    return { data, pagination };
+    if (res) {
+      sendSuccessResponse({ res, data, pagination })
+    }
+    return {query, data, pagination };
   } catch (error) {
     throw new Error(error);
   }
