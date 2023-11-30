@@ -12,12 +12,12 @@ const {
   DEFAULT_PARAM_PAGE_SIZE,
   DEFAULT_PARAM_PAGE,
   DEFAULT_PARAM_LIMIT,
-  CON_IDENTITY,
 } = require("../../const");
 const { secretKey } = require("../../const/config-const");
-const { getToken, emitter, eventEmitter } = require("../common");
+const { getToken} = require("../common");
+const { emitter } = require("../../instances");
 
-eventEmitter.on('sendFailureResponse', (data) => {
+emitter.on('sendFailureResponse', (data) => {
   sendFailureResponse(data);
 });
 

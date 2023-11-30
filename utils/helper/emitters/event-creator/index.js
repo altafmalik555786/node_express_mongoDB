@@ -1,11 +1,10 @@
-// const { emitter } = require("../../../instances")
+const { emitter } = require("../../../instances")
 
+const sendFailureResponse = (data) => {
+ emitter.emit('sendFailureResponse', data)
+}
 
-
-// emitter.emit('sendFailureResponse', data)
-
-
-// module.exports = {
-//     sendFailureResponse,
-//     emitCreator: emitter
-// };
+module.exports = {
+    sendFailureResponse,
+    // emitCreator: emitter
+};
