@@ -1,23 +1,5 @@
-const { ERROR_INVALID_ID, ERROR_RECORD_NOT_FOUND, ERROR_SERVER_ERROR, MESSAGE_INVALID_EXPIRY } = require('../../const');
-
-
-const failureResponse = ({ message = null }) => {
-  return {
-    success: false,
-    message,
-  };
-};
-
-
-const sendFailureResponse = ({ res = null, status = 400, message = null }) => {
-  if (res) {
-    res.status(status).json(failureResponse({ message }));
-  } else {
-    throw new Error(
-      "Res is null, please send res key to sendFailureResponse({res: ??})"
-    );
-  }
-};
+const { ERROR_INVALID_ID, ERROR_RECORD_NOT_FOUND, ERROR_SERVER_ERROR } = require('../../const');
+const { emitter } = require('../../instances/index')
 
 const handleCatchedError = ({
   error,
@@ -36,7 +18,7 @@ const handleCatchedError = ({
 
   if (![ERROR_INVALID_ID, ERROR_RECORD_NOT_FOUND, ERROR_SERVER_ERROR]?.includes(error?.message)) {
     if (res) {
-      sendFailureResponse({ res, status, message })
+      emitter.emit('sendFailureResponse', { res, status, message })
     }
   }
 
@@ -95,5 +77,6 @@ module.exports = {
   compareObjectsDeepEqual,
   toCapitalCase,
   findIntersectionObjects,
-  getToken
+  getToken,
+  emitter
 };

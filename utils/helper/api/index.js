@@ -4,19 +4,21 @@ const UserModel = require('../../../model/user')
 const fs = require('fs')
 const cloudinary = require('cloudinary').v2;
 
-
 const {
   MESSAGE_NOT_FOUND,
   ERROR_INVALID_ID,
   ERROR_RECORD_NOT_FOUND,
   ERROR_SERVER_ERROR,
-  CON_IDENTITY,
   DEFAULT_PARAM_PAGE_SIZE,
   DEFAULT_PARAM_PAGE,
   DEFAULT_PARAM_LIMIT,
 } = require("../../const");
 const { secretKey } = require("../../const/config-const");
-const { getToken } = require("../common");
+const { getToken, emitter } = require("../common");
+
+emitter.on('sendFailureResponse', (data) => {
+  sendFailureResponse(data)
+})
 
 const successResponse = ({ data = undefined, message = null, pagination = undefined }) => {
   if (data === null) {
@@ -269,7 +271,7 @@ const getPaginatedData = async ({ req, res = null, model, populate = [] }) => {
     if (populate?.length > 0) {
       query = query.populate(...populate);
     }
-    let total = await model.countDocuments();
+    const total = await model.countDocuments();
     if (limitedTotal > 0) {
       total = Math.min(total, limitedTotal);
     }
@@ -286,7 +288,7 @@ const getPaginatedData = async ({ req, res = null, model, populate = [] }) => {
     if (res) {
       sendSuccessResponse({ res, data, pagination })
     }
-    return {query, data, pagination };
+    return { query, data, pagination };
   } catch (error) {
     throw new Error(error);
   }
