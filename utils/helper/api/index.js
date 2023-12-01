@@ -302,6 +302,9 @@ const getPaginatedData = async ({ req, res = null, model, populate = [] }) => {
   }
 };
 
+const getId = (resonse) => {
+  return resonse._id?.toString()
+}
 
 module.exports = {
   successResponse,
@@ -318,4 +321,5 @@ module.exports = {
   handleCloudinaryFiles,
   destoryCloudinaryFiles,
   getPaginatedData,
+  getId,
 };

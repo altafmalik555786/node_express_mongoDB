@@ -1,6 +1,6 @@
 const Post = require("../../model/post");
 const { CON_IDENTITY } = require("../../utils/const");
-const { getUserFromToken } = require("../../utils/helper/api");
+const { getUserFromToken, getId } = require("../../utils/helper/api");
 const { handleCatchedError, convertVartoString } = require("../../utils/helper/common");
 
 ///////// Hints to use ////////
@@ -14,17 +14,12 @@ const accessPermissionMiddleware = ({ model }) => {
       // if (String(post.user) !== userId) {
       //     return res.status(403).json({ message: 'You are not authorized to delete this post' });
       // }
-
-      console.log(CON_IDENTITY, convertVartoString({Post}))
-      
-      if (model && user) {
-
-        const user = await getUserFromToken(req, res)
+      if (model) {
         const post = await isNotFoundByID({ req, res, id, model: post, entity: "Post" });
 
-  if (String(model.user) !== userId) {
+        if (String(model.user) !== getId(await getUserFromToken(req, res))) {
           return res.status(403).json({ message: 'You are not authorized to delete this post' });
-      }        
+        }
 
       }
 
