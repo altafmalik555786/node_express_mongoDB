@@ -61,7 +61,7 @@ const sendFailureResponse = ({ res = null, status = 400, message = null }) => {
   }
 };
 
-const isNotFoundByID = async ({ req, res, model, id = null, entity = "" }) => {
+const isNotFoundByID = async ({ req, res, model, id = null, entity = "data" }) => {
   const recordId = id || req.params.id || req.body.id;
   if (!mongoose.Types.ObjectId.isValid(recordId)) {
     sendFailureResponse({

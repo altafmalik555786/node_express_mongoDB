@@ -1,4 +1,4 @@
-const { CON_IDENTITY } = require("../../utils/const");
+const { CON_IDENTITY, UNAUTHORIZED_DONT_HAVE_PERMISSION } = require("../../utils/const");
 const { getUserFromToken, getId, sendFailureResponse, isNotFoundByID } = require("../../utils/helper/api");
 const { handleCatchedError, convertVartoString } = require("../../utils/helper/common");
 
@@ -13,23 +13,20 @@ const accessPermissionMiddleware = ({ model = null, authorisedUser = [], unAutho
       if (model) {
         const post = await isNotFoundByID({ req, res, id, model });
         if (String(post.user) !== getId(user)) {
-          return sendFailureResponse({ res, status: 403, message: 'You are not authorized to delete this post' })
+          return sendFailureResponse({ res, status: 403, message: UNAUTHORIZED_DONT_HAVE_PERMISSION() })
         }
       } else {
         next()
       }
 
-      // Check for authorisedUser
-
+      // Check for authorisedUser or unAuthorisedUser
       if (authorisedUser?.includes(user.role)) {
-        next(); 
+        next();
       } else if (unAuthorisedUser?.includes(user.role)) {
-        res.status(403).json({ error: 'Unauthorized' }); // User doesn't have permission
+        sendFailureResponse({ res, status: 403, message: UNAUTHORIZED_DONT_HAVE_PERMISSION() })
       } else {
         next()
       }
-
-      
     } catch (error) {
       handleCatchedError({ res, at: "accessPermissionMiddleware", error });
     }
