@@ -1,8 +1,7 @@
 const Post = require("../../model/post");
-const { MESSAGE_CREATED, CON_IDENTITY, MESSAGE_NOT_FOUND, MESSAGE_DELETED, ERROR_RECORD_NOT_FOUND } = require("../../utils/const");
+const { MESSAGE_CREATED, MESSAGE_DELETED, ERROR_RECORD_NOT_FOUND } = require("../../utils/const");
 const { checkValidation, sendSuccessResponse, getUserFromToken, handleCloudinaryFiles, getPaginatedData, verifyToken, isNotFoundByID, sendFailureResponse, destoryCloudinaryFiles } = require("../../utils/helper/api");
 const { handleCatchedError } = require("../../utils/helper/common");
-const cloudinary = require("cloudinary").v2; // platform for upload file here.
 
 
 const postCreatePosts = async (req, res) => {
@@ -32,11 +31,12 @@ const deletePosts = async (req, res) => {
         const decoded = await verifyToken(req, res);
         const userId = decoded.id;
         const { id, imgId } = req.body;
+        
         const post = await isNotFoundByID({ req, res, id, model: Post, entity: "Post" });
-        console.log("")
-        if (String(post.user) !== userId) {
-            return res.status(403).json({ message: 'You are not authorized to delete this post' });
-        }
+        // console.log("")
+        // if (String(post.user) !== userId) {
+        //     return res.status(403).json({ message: 'You are not authorized to delete this post' });
+        // }
         await destoryCloudinaryFiles(imgId)
         await Post.deleteOne({ _id: id });
         sendSuccessResponse({ res, message: MESSAGE_DELETED('Post') })

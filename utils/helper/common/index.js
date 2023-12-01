@@ -72,11 +72,16 @@ const getToken = (req) => {
   return req.headers.authorization.split(' ')[1]
 }
 
+const convertVartoString = (paramObj, index = 0) => {
+  return Object.keys(paramObj)[0]
+}
+
 module.exports = {
   handleCatchedError,
   compareObjectsDeepEqual,
   toCapitalCase,
   findIntersectionObjects,
   getToken,
+  convertVartoString
 
 };
