@@ -1,8 +1,6 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const Post = require('../model/post');
-const User = require("../model/user");
-const fs = require('fs')
 const { authMiddleware, isAdminMiddleware } = require('../utils/authMiddleware');
 const { secretKey } = require('../utils/const/config-const');
 const router = express.Router();
@@ -27,37 +25,7 @@ cloudinary.config({
   api_secret: "a0Mw1XIVPe-EkEflZeKuykb8iHk",
 });
 
-// GET all posts paginated
-router.get('/getAllPostsPaginated', authMiddleware, async (req, res) => {
-  const page = parseInt(req.query.page) || 1;
-  const pageSize = parseInt(req.query.pageSize) || 10;
 
-  try {
-    const totalPost = await Post.countDocuments();
-    const totalPages = Math.ceil(totalPost / pageSize);
-
-    const posts = await Post.find().populate("user", "-password -email -contact").skip((page - 1) * pageSize).limit(pageSize);
-    res.json({
-      success: true,
-      posts,
-      page,
-      pageSize,
-      totalPages,
-    });
-  } catch (error) {
-    res.status(500).json({ errorDetail: error, error: 'Internal Server Error' });
-  }
-});
-
-// GET all posts
-router.get("/getAllPosts", async (req, res) => {
-  try {
-    const posts = await Post.find().populate("user", "-password -email -contact"); // Retrieve all posts and populate the user field, excluding the password field
-    return res.status(200).json(posts);
-  } catch (error) {
-    return res.status(500).json({ message: error.message });
-  }
-});
 
 // DELETE a post
 router.post("/deletePost", authMiddleware, async (req, res) => {
