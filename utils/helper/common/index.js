@@ -1,5 +1,4 @@
 const { ERROR_INVALID_ID, ERROR_RECORD_NOT_FOUND, ERROR_SERVER_ERROR, CON_IDENTITY } = require('../../const');
-const { emitter } = require('../../instances');
 const { sendFailureResponse } = require('../emitters/event-creator');
 
 const handleCatchedError = ({
@@ -79,6 +78,5 @@ module.exports = {
   toCapitalCase,
   findIntersectionObjects,
   getToken,
-  eventEmitter: emitter
 
 };

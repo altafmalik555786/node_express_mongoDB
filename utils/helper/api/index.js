@@ -14,12 +14,7 @@ const {
   DEFAULT_PARAM_LIMIT,
 } = require("../../const");
 const { secretKey } = require("../../const/config-const");
-const { getToken} = require("../common");
-const { emitter } = require("../../instances");
-
-emitter.on('sendFailureResponse', (data) => {
-  sendFailureResponse(data);
-});
+const { getToken } = require("../common");
 
 const successResponse = ({ data = undefined, message = null, pagination = undefined }) => {
   if (data === null) {
@@ -263,6 +258,18 @@ const handleCloudinaryFiles = async (req) => {
   return uploadResult
 }
 
+const destoryCloudinaryFiles = async (id, res = null) => {
+  await cloudinary.uploader.destroy(id, async (destroyErr, destroyResult) => {
+    if (destroyErr) {
+      throw new Error(`Error deleting the file from Cloudinary: ${destroyErr}`)
+    }
+    if (destroyResult?.result === "not found") {
+      sendFailureResponse({ res, status: 404, message: MESSAGE_NOT_FOUND('File') })
+      throw new Error(ERROR_RECORD_NOT_FOUND)
+    }
+  });
+}
+
 const getPaginatedData = async ({ req, res = null, model, populate = [] }) => {
   const page = parseInt(req.query.page) || DEFAULT_PARAM_PAGE;
   const limitedTotal = parseInt(req.query.limit) || DEFAULT_PARAM_LIMIT;
@@ -309,5 +316,6 @@ module.exports = {
   getUserFromToken,
   verifyToken,
   handleCloudinaryFiles,
+  destoryCloudinaryFiles,
   getPaginatedData,
 };

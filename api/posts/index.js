@@ -1,6 +1,6 @@
 const Post = require("../../model/post");
-const { MESSAGE_CREATED, CON_IDENTITY, MESSAGE_NOT_FOUND } = require("../../utils/const");
-const { checkValidation, sendSuccessResponse, getUserFromToken, handleCloudinaryFiles, getPaginatedData, verifyToken, isNotFoundByID } = require("../../utils/helper/api");
+const { MESSAGE_CREATED, CON_IDENTITY, MESSAGE_NOT_FOUND, MESSAGE_DELETED, ERROR_RECORD_NOT_FOUND } = require("../../utils/const");
+const { checkValidation, sendSuccessResponse, getUserFromToken, handleCloudinaryFiles, getPaginatedData, verifyToken, isNotFoundByID, sendFailureResponse, destoryCloudinaryFiles } = require("../../utils/helper/api");
 const { handleCatchedError } = require("../../utils/helper/common");
 const cloudinary = require("cloudinary").v2; // platform for upload file here.
 
@@ -33,25 +33,15 @@ const deletePosts = async (req, res) => {
         const userId = decoded.id;
         const { id, imgId } = req.body;
         const post = await isNotFoundByID({ req, res, id, model: Post, entity: "Post" });
-
+        console.log("")
         if (String(post.user) !== userId) {
             return res.status(403).json({ message: 'You are not authorized to delete this post' });
         }
-
-        await cloudinary.uploader.destroy(imgId, async (destroyErr, destroyResult) => {
-            console.log(CON_IDENTITY, "destroyErr", destroyErr, "destroyResult", destroyResult)
-            if (destroyErr) {
-                throw new Error(`Error deleting the file from Cloudinary: ${destroyErr}`)
-            }
-            if (destroyResult?.result === "not found") {
-                throw new Error(`${destroyResult?.result}`)
-            }
-        });
+        await destoryCloudinaryFiles(imgId)
         await Post.deleteOne({ _id: id });
-        return res.status(200).json({ success: true, message: 'Post deleted successfully' });
-
+        sendSuccessResponse({ res, message: MESSAGE_DELETED('Post') })
     } catch (error) {
-        return res.status(500).json({ message: error.message });
+        handleCatchedError({ res, error: error, at: "postCreatePosts" })
     }
 }
 

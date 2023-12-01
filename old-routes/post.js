@@ -1,8 +1,8 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const Post = require('../model/post');
-const { authMiddleware, isAdminMiddleware } = require('../utils/authMiddleware');
 const { secretKey } = require('../utils/const/config-const');
+const { authMiddleware } = require('../middlewares/auth');
 const router = express.Router();
 const cloudinary = require("cloudinary").v2; // platform for upload file here.
 

@@ -5,12 +5,10 @@ const {
   deleteUser,
   getSingleUser,
 } = require("../../api/users");
-const {
-  authMiddleware,
-  isAdminMiddleware,
-} = require("../../utils/authMiddleware");
 const { ROUTE_PARAM_SLASH_ID } = require("../../utils/const");
 const { router } = require("../../utils/instances");
+const { authMiddleware } = require("../../middlewares/auth");
+const { isAdminMiddleware } = require("../../middlewares/is-admin");
 
 router.get(
   `${endPoints?.users}`,
