@@ -15,7 +15,7 @@ const accessPermissionMiddleware = ({ model = null, authorizedUser = [], unAutho
       if (model) {
         const post = await isNotFoundByID({ req, res, id, model, entity });
         if (String(post.user) !== getId(user)) {
-          return sendFailureResponse({ res, status: 403, message: UNAUTHORIZED_DONT_HAVE_PERMISSION(req.method?.toLowerCase()) + "Because you didn't created this post."})
+          return sendFailureResponse({ res, status: 403, message: UNAUTHORIZED_DONT_HAVE_PERMISSION(req.method?.toLowerCase()) + "Because you didn't created this post." })
         }
       } else {
         next()
@@ -25,7 +25,7 @@ const accessPermissionMiddleware = ({ model = null, authorizedUser = [], unAutho
       if (authorizedUser?.includes(user.role)) {
         next();
       } else if (unAuthorizedUser?.includes(user.role)) {
-        sendFailureResponse({ res, status: 403, message: UNAUTHORIZED_DONT_HAVE_PERMISSION(req.method?.toLowerCase())})
+        sendFailureResponse({ res, status: 403, message: UNAUTHORIZED_DONT_HAVE_PERMISSION(req.method?.toLowerCase()) })
       } else {
         next()
       }
