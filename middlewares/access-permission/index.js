@@ -5,22 +5,31 @@ const { handleCatchedError, convertVartoString } = require("../../utils/helper/c
 ///////// Hints to use ////////
 // accessPermissionMiddleware({model: [modelname]}) -------> for same user authority
 
-const accessPermissionMiddleware = ({ model = null }) => {
+const accessPermissionMiddleware = ({ model = null, authorisedUser = [], unAuthorisedUser = [] }) => {
   return async (req, res, next) => {
     const id = req.params.id || req.body.id;
     try {
+      const user = await getUserFromToken(req, res)
       if (model) {
         const post = await isNotFoundByID({ req, res, id, model });
-        if (String(post.user) !== getId(await getUserFromToken(req, res))) {
-          return sendFailureResponse({ res, status: 403,  message: 'You are not authorized to delete this post' })
+        if (String(post.user) !== getId(user)) {
+          return sendFailureResponse({ res, status: 403, message: 'You are not authorized to delete this post' })
         }
+      } else {
+        next()
       }
-      // // Check if user's role has the requiredPermission
-      // if (user.role === 'admin' && requiredPermission === 'write') {
-      //   next(); // Admin has 'write' permission
-      // } else {
-      //   res.status(403).json({ error: 'Unauthorized' }); // User doesn't have permission
-      // }
+
+      // Check for authorisedUser
+
+      if (authorisedUser?.includes(user.role)) {
+        next(); 
+      } else if (unAuthorisedUser?.includes(user.role)) {
+        res.status(403).json({ error: 'Unauthorized' }); // User doesn't have permission
+      } else {
+        next()
+      }
+
+      
     } catch (error) {
       handleCatchedError({ res, at: "accessPermissionMiddleware", error });
     }

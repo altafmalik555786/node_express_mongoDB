@@ -22,7 +22,7 @@ const isAdminMiddleware = async (req, res, next) => {
           message: `Authentication failed! ${MESSAGE_INVALID_EXPIRY("Token")}!`,
         });
       } else {
-        if (decoded?.role === userRoles?.isAdmin) {
+        if (decoded?.role === userRoles?.admin) {
           req.authenticated = true;
           next();
         } else {

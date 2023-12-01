@@ -1,6 +1,11 @@
 const userRoles = {
-    "isAdmin": "0",
+    "superMaster": "4",
+    "master": "3",
+    "superAdmin": "2",
+    "admin": "0",
     "user": "1"
+
+
 }
 
 
