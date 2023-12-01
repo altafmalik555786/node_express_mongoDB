@@ -3,17 +3,17 @@ const { getUserFromToken, getId, sendFailureResponse, isNotFoundByID } = require
 const { handleCatchedError } = require("../../utils/helper/common");
 
 ///////// Hints to use ////////
-// accessPermissionMiddleware({model: [modelname]}) -------> for same user authority
-// accessPermissionMiddleware({ authorizedUser: [userRoles.admin, userRoles.master] }) -------> for Authorized User
-// accessPermissionMiddleware({ unAuthorizedUser: [userRoles.user, userRoles.superMaster] }) -------> for Unauthorized User
+// accessPermissionMiddleware({model: [modelname], entity}) -------> for same user authority
+// accessPermissionMiddleware({ authorizedUser: [userRoles.admin, userRoles.master], entity }) -------> for Authorized User
+// accessPermissionMiddleware({ unAuthorizedUser: [userRoles.user, userRoles.superMaster], entity }) -------> for Unauthorized User
 
-const accessPermissionMiddleware = ({ model = null, authorizedUser = [], unAuthorizedUser = [] }) => {
+const accessPermissionMiddleware = ({ model = null, authorizedUser = [], unAuthorizedUser = [], entity = "data" }) => {
   return async (req, res, next) => {
     const id = req.params.id || req.body.id;
     try {
       const user = await getUserFromToken(req, res)
       if (model) {
-        const post = await isNotFoundByID({ req, res, id, model });
+        const post = await isNotFoundByID({ req, res, id, model, entity });
         if (String(post.user) !== getId(user)) {
           return sendFailureResponse({ res, status: 403, message: UNAUTHORIZED_DONT_HAVE_PERMISSION(req.method?.toLowerCase())})
         }

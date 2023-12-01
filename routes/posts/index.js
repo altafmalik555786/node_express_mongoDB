@@ -12,7 +12,8 @@ router.get(`${endPoints?.posts}`, authMiddleware, getAllPosts);
 router.delete(`${endPoints?.posts}`, accessPermissionMiddleware({
     model: Post,
     authorizedUser: [userRoles.admin, userRoles.master],
-    unAuthorizedUser: [userRoles.user, userRoles.superMaster]
+    unAuthorizedUser: [userRoles.user, userRoles.superMaster],
+    entity: "Post"
 }), authMiddleware, deletePosts);
 
 module.exports = { postsRouter: router };

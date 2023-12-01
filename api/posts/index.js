@@ -28,15 +28,7 @@ const getAllPosts = async (req, res) => {
 
 const deletePosts = async (req, res) => {
     try {
-        const decoded = await verifyToken(req, res);
-        const userId = decoded.id;
         const { id, imgId } = req.body;
-        
-        const post = await isNotFoundByID({ req, res, id, model: Post, entity: "Post" });
-        // console.log("")
-        // if (String(post.user) !== userId) {
-        //     return res.status(403).json({ message: 'You are not authorized to delete this post' });
-        // }
         await destoryCloudinaryFiles(imgId)
         await Post.deleteOne({ _id: id });
         sendSuccessResponse({ res, message: MESSAGE_DELETED('Post') })
