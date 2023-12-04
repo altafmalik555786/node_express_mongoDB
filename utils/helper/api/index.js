@@ -12,9 +12,10 @@ const {
   DEFAULT_PARAM_PAGE_SIZE,
   DEFAULT_PARAM_PAGE,
   DEFAULT_PARAM_LIMIT,
+  CON_IDENTITY,
 } = require("../../const");
 const { secretKey } = require("../../const/config-const");
-const { getToken } = require("../common");
+const { getToken, findStatusOnMsg } = require("../common");
 
 const successResponse = ({ data = undefined, message = null, pagination = undefined }) => {
   if (data === null) {
@@ -51,9 +52,11 @@ const sendSuccessResponse = ({
   }
 };
 
-const sendFailureResponse = ({ res = null, status = 400, message = null }) => {
+const sendFailureResponse = ({ res = null, status = null, message = null }) => {
+  const statusCode = status || findStatusOnMsg(message)
+  console.log(CON_IDENTITY ,"status", status, CON_IDENTITY, "statusCode: ", statusCode)
   if (res) {
-    res.status(status).json(failureResponse({ message }));
+    res.status(statusCode).json(failureResponse({ message }));
   } else {
     throw new Error(
       "Res is null, please send res key to sendFailureResponse({res: ??})"
@@ -75,7 +78,7 @@ const isNotFoundByID = async ({ req, res, model, id = null, entity = "data" }) =
       sendFailureResponse({
         res,
         message: MESSAGE_NOT_FOUND(entity),
-        status: 404,
+        // status: 404,
       });
       throw new Error(ERROR_RECORD_NOT_FOUND);
     } else {

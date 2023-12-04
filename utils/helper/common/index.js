@@ -1,4 +1,5 @@
 const { ERROR_INVALID_ID, ERROR_RECORD_NOT_FOUND, ERROR_SERVER_ERROR, CON_IDENTITY } = require('../../const');
+const { statusCodes } = require('../../json');
 const { sendFailureResponse } = require('../emitters/event-creator');
 
 const handleCatchedError = ({
@@ -13,7 +14,7 @@ const handleCatchedError = ({
   console.log(" ////////////////////////// handleCatchedError Start /////////////////////////// ")
   console.log(" /////////////////////////////////////////////////////////////////////////////// ")
   // console.log(" /////////////////////////////////////////////////////////////////////////////// ")
-  
+
   console.log(" -----------------> [At]:", at, "[Error]: ", error);
 
   if (![ERROR_INVALID_ID, ERROR_RECORD_NOT_FOUND, ERROR_SERVER_ERROR]?.includes(error?.message)) {
@@ -76,12 +77,35 @@ const convertVartoString = (paramObj, index = 0) => {
   return Object.keys(paramObj)[0]
 }
 
+const findStatusOnMsg = (message) => {
+  let getCode = null
+  switch (true) {
+    case statusCodes[200].msgIncludes.some(item => message.includes(item)):
+      getCode = statusCodes[200]?.status
+      break;
+
+    case statusCodes[403].msgIncludes.some(item => message.includes(item)):
+      getCode = statusCodes[403]?.status
+      break;
+
+    case statusCodes[404].msgIncludes.some(item => message.includes(item)):
+      getCode = statusCodes[404].status
+      break;
+
+    default:
+      break;
+  }
+  console.log(CON_IDENTITY, CON_IDENTITY, CON_IDENTITY, "getCode: ", getCode)
+
+  return getCode
+}
+
 module.exports = {
   handleCatchedError,
   compareObjectsDeepEqual,
   toCapitalCase,
   findIntersectionObjects,
   getToken,
-  convertVartoString
-
+  convertVartoString,
+  findStatusOnMsg,
 };
