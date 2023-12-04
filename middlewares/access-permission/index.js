@@ -1,4 +1,4 @@
-const { UNAUTHORIZED_DONT_HAVE_PERMISSION, CON_IDENTITY } = require("../../utils/const");
+const { UNAUTHORIZED_DONT_HAVE_PERMISSION } = require("../../utils/const");
 const { getUserFromToken, getId, sendFailureResponse, isNotFoundByID } = require("../../utils/helper/api");
 const { handleCatchedError } = require("../../utils/helper/common");
 
