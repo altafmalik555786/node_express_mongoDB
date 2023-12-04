@@ -5,7 +5,7 @@ const fs = require('fs')
 const cloudinary = require('cloudinary').v2;
 
 const {
-  MESSAGE_NOT_FOUND,
+  MSG_NOT_FOUND,
   ERROR_INVALID_ID,
   ERROR_RECORD_NOT_FOUND,
   ERROR_SERVER_ERROR,
@@ -40,10 +40,10 @@ const sendSuccessResponse = ({
   res = null,
   status = null,
   data = undefined,
-  message = null,
+  message = undefined,
   pagination = undefined
 }) => {
-  const statusCode = status || findStatusOnMsg(message, data) || statusCodes?.standardSuccess?.status
+  const statusCode = status || findStatusOnMsg({ message, data }) || statusCodes[200].status
   if (res) {
     res.status(statusCode).send(successResponse({ data, message, pagination }));
   } else {
@@ -54,7 +54,7 @@ const sendSuccessResponse = ({
 };
 
 const sendFailureResponse = ({ res = null, status = null, message = null }) => {
-  const statusCode = status || findStatusOnMsg(message) || statusCodes?.standardFailed.status
+  const statusCode = status || findStatusOnMsg({ message }) || statusCodes[400].status
   if (res) {
     res.status(statusCode).json(failureResponse({ message }));
   } else {
@@ -77,7 +77,7 @@ const isNotFoundByID = async ({ req, res, model, id = null, entity = "data" }) =
     if (!existObj) {
       sendFailureResponse({
         res,
-        message: MESSAGE_NOT_FOUND(entity),
+        message: MSG_NOT_FOUND(entity),
         status: 404,
       });
       throw new Error(ERROR_RECORD_NOT_FOUND);
@@ -100,7 +100,7 @@ const recordNotFound = async ({
     sendFailureResponse({
       res,
       status,
-      message: message || MESSAGE_NOT_FOUND(entity),
+      message: message || MSG_NOT_FOUND(entity),
     });
     throw new Error(ERROR_RECORD_NOT_FOUND);
   } else {
@@ -237,7 +237,7 @@ const verifyToken = (req, res) => {
   return new Promise((resolve, reject) => {
     jwt.verify(getToken(req), secretKey, function (err, decoded) {
       if (err) {
-        sendFailureResponse({ res, message: MESSAGE_INVALID_EXPIRY("Token") })
+        sendFailureResponse({ res, message: MSG_INVALID_EXPIRY("Token") })
       } else {
         resolve(decoded);
       }
@@ -261,13 +261,13 @@ const handleCloudinaryFiles = async (req) => {
   return uploadResult
 }
 
-const destoryCloudinaryFiles = async (id, res = null) => {
+const destoryCloudinaryFiles = async ({ id, res = null }) => {
   await cloudinary.uploader.destroy(id, async (destroyErr, destroyResult) => {
     if (destroyErr) {
       throw new Error(`Error deleting the file from Cloudinary: ${destroyErr}`)
     }
     if (destroyResult?.result === "not found") {
-      sendFailureResponse({ res, status: 404, message: MESSAGE_NOT_FOUND('File') })
+      sendFailureResponse({ res, status: 404, message: MSG_NOT_FOUND('File') })
       throw new Error(ERROR_RECORD_NOT_FOUND)
     }
   });

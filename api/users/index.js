@@ -1,5 +1,5 @@
 const UserModel = require("../../model/user");
-const { MESSAGE_DELETED } = require("../../utils/const");
+const { MSG_DELETED } = require("../../utils/const");
 const {
   sendSuccessResponse,
   handlePutRequest,
@@ -41,7 +41,7 @@ const updateUser = async (req, res) => {
     });
     const options = { new: true };
     const data = await UserModel.findByIdAndUpdate(id, req.body, options);
-    sendSuccessResponse({ res, data, message: MESSAGE_UPDATED("User") });
+    sendSuccessResponse({ res, data, message: MSG_UPDATED("User") });
   } catch (error) {
     handleCatchedError({ res, error, at: "updateUser" });
   }
@@ -52,7 +52,7 @@ const deleteUser = async (req, res) => {
     const userId = req.params.id;
     await isNotFoundByID({ req, res, model: UserModel, entity: "User" });
     const data = await UserModel.findByIdAndDelete(userId);
-    return sendSuccessResponse({ res, message: MESSAGE_DELETED("User"), data });
+    return sendSuccessResponse({ res, message: MSG_DELETED("User"), data });
   } catch (error) {
     handleCatchedError({ res, error, at: "/user/:id" });
   }

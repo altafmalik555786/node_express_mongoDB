@@ -78,22 +78,30 @@ const convertVartoString = (paramObj, index = 0) => {
   return Object.keys(paramObj)[0]
 }
 
-const findStatusOnMsg = (message, response = null) => {
+const findStatusOnMsg = ({ message = "", data = null }) => {
   var getCode = null
 
   switch (true) {
-    case statusCodes[200].msgIncludes.some(item => message.includes(item)):
+    case statusCodes[200].msgIncludes.some(item => message?.includes(item)):
       getCode = statusCodes[200]?.status
-      if (response && statusCodes[201].msgIncludes.some(item => message.includes(item))) {
+      if (data && statusCodes[201].msgIncludes.some(item => message?.includes(item))) {
         getCode = statusCodes[201]?.status
       }
       break;
 
     case statusCodes[201].msgIncludes.some(item => message.includes(item)):
-      if (response) {
+      if (data) {
         getCode = statusCodes[201]?.status
       }
       break;
+
+    case statusCodes[204].msgIncludes.some(item => message.includes(item)):
+      getCode = statusCodes[204]?.status
+      if (data && statusCodes[202].msgIncludes.some(item => message.includes(item)) ) {
+        getCode = statusCodes[202].status
+      }
+      break;
+
     case statusCodes[401].msgIncludes.some(item => message.includes(item)):
       getCode = statusCodes[401]?.status
       break;
@@ -108,8 +116,6 @@ const findStatusOnMsg = (message, response = null) => {
 
     default:
       break;
-
-
   }
 
   return getCode

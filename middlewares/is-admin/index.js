@@ -3,7 +3,7 @@ const { userRoles } = require('../../utils/json/index')
 const { handleCatchedError } = require("../../utils/helper/common");
 const { sendFailureResponse } = require("../../utils/helper/api");
 const { secretKey } = require("../../utils/const/config-const");
-const { MESSAGE_INVALID_EXPIRY } = require("../../utils/const");
+const { MSG_INVALID_EXPIRY } = require("../../utils/const");
 
 const isAdminMiddleware = async (req, res, next) => {
   try {
@@ -19,7 +19,7 @@ const isAdminMiddleware = async (req, res, next) => {
       if (err) {
         return sendFailureResponse({
           res,
-          message: `Authentication failed! ${MESSAGE_INVALID_EXPIRY("Token")}!`,
+          message: `Authentication failed! ${MSG_INVALID_EXPIRY("Token")}!`,
         });
       } else {
         if (decoded?.role === userRoles?.admin) {

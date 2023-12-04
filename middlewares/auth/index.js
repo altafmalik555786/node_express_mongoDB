@@ -2,7 +2,7 @@ const jwt = require("jsonwebtoken");
 const { handleCatchedError } = require("../../utils/helper/common");
 const { sendFailureResponse } = require("../../utils/helper/api");
 const { secretKey } = require("../../utils/const/config-const");
-const { MESSAGE_INVALID_EXPIRY } = require("../../utils/const");
+const { MSG_INVALID_EXPIRY } = require("../../utils/const");
 
 const authMiddleware = (req, res, next) => {
   try {
@@ -18,7 +18,7 @@ const authMiddleware = (req, res, next) => {
       if (err) {
         return sendFailureResponse({
           res,
-          message: MESSAGE_INVALID_EXPIRY("Token"),
+          message: MSG_INVALID_EXPIRY("Token"),
         });
       } else {
         req.decoded = decoded;

@@ -9,10 +9,12 @@ const { userRoles } = require("../../utils/json");
 
 router.post(`${endPoints?.posts}`, authMiddleware, postCreatePosts);
 router.get(`${endPoints?.posts}`, authMiddleware, getAllPosts);
-router.delete(`${endPoints?.posts}`, accessPermissionMiddleware({
+router.delete(`${endPoints?.posts}`,
+ accessPermissionMiddleware({
     model: Post,
     authorizedUser: [userRoles.admin, userRoles.user],
     entity: "Post"
-}), authMiddleware, deletePosts);
+}),
+ authMiddleware, deletePosts);
 
 module.exports = { postsRouter: router };

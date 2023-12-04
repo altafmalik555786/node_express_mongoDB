@@ -19,10 +19,10 @@ const {
   appSpecificPass,
 } = require("../../utils/const/config-const");
 const {
-  MESSAGE_VERIFIED,
-  MESSAGE_INVALID_EXPIRY,
-  MESSAGE_UPDATED,
-  MESSAGE_CREATED,
+  MSG_VERIFIED,
+  MSG_INVALID_EXPIRY,
+  MSG_UPDATED,
+  MSG_CREATED,
 } = require("../../utils/const");
 
 const saltRounds = 10;
@@ -102,7 +102,7 @@ const registerUser = async (req, res) => {
       role,
     });
     await data.save();
-    sendSuccessResponse({ res, message: MESSAGE_CREATED("User") });
+    sendSuccessResponse({ res, message: MSG_CREATED("User") });
   } catch (error) {
     handleCatchedError({ res, error, at: "registerUser" });
   }
@@ -179,7 +179,7 @@ const getVeriyEmailSuccess = async (req, res) => {
       await Token.deleteMany({ email: storedToken.email });
       sendSuccessResponse({ res, message: "Email has been verified" })
     } else {
-      sendFailureResponse({ res, message: MESSAGE_INVALID_EXPIRY("Email token") })
+      sendFailureResponse({ res, message: MSG_INVALID_EXPIRY("Email token") })
     }
   } catch (error) {
     handleCatchedError({
@@ -275,13 +275,13 @@ const postVerifyCode = async (req, res) => {
     });
 
     if (codeIsValid) {
-      sendSuccessResponse({ res, message: MESSAGE_VERIFIED("Code") });
+      sendSuccessResponse({ res, message: MSG_VERIFIED("Code") });
       await ResetCode.deleteMany({ email });
     } else {
       sendFailureResponse({
         res,
         status: 400,
-        message: MESSAGE_INVALID_EXPIRY("Code"),
+        message: MSG_INVALID_EXPIRY("Code"),
       });
     }
   } catch (error) {
@@ -305,7 +305,7 @@ const postResetPassword = async (req, res) => {
 
     await user.save();
 
-    sendSuccessResponse({ res, message: MESSAGE_UPDATED("Password") });
+    sendSuccessResponse({ res, message: MSG_UPDATED("Password") });
   } catch (error) {
     handleCatchedError({ res, error, at: "postResetPassword" });
   }
