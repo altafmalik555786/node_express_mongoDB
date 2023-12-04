@@ -1,3 +1,4 @@
+const { response } = require('express');
 const { ERROR_INVALID_ID, ERROR_RECORD_NOT_FOUND, ERROR_SERVER_ERROR, CON_IDENTITY } = require('../../const');
 const { statusCodes } = require('../../json');
 const { sendFailureResponse } = require('../emitters/event-creator');
@@ -77,11 +78,24 @@ const convertVartoString = (paramObj, index = 0) => {
   return Object.keys(paramObj)[0]
 }
 
-const findStatusOnMsg = (message) => {
-  let getCode = null
+const findStatusOnMsg = (message, response = null) => {
+  var getCode = null
+
   switch (true) {
     case statusCodes[200].msgIncludes.some(item => message.includes(item)):
       getCode = statusCodes[200]?.status
+      if (response && statusCodes[201].msgIncludes.some(item => message.includes(item))) {
+        getCode = statusCodes[201]?.status
+      }
+      break;
+
+    case statusCodes[201].msgIncludes.some(item => message.includes(item)):
+      if (response) {
+        getCode = statusCodes[201]?.status
+      }
+      break;
+    case statusCodes[401].msgIncludes.some(item => message.includes(item)):
+      getCode = statusCodes[401]?.status
       break;
 
     case statusCodes[403].msgIncludes.some(item => message.includes(item)):
@@ -94,8 +108,9 @@ const findStatusOnMsg = (message) => {
 
     default:
       break;
+
+
   }
-  console.log(CON_IDENTITY, CON_IDENTITY, CON_IDENTITY, "getCode: ", getCode)
 
   return getCode
 }
