@@ -64,7 +64,7 @@ const sendFailureResponse = ({ res = null, status = null, message = null }) => {
   }
 };
 
-const isNotFoundByID = async ({ req, res, model, id = null, entity = "data" }) => {
+const findById = async ({ req, res, model, id = null, entity = "data" }) => {
   const recordId = id || req.params.id || req.body.id;
   if (!mongoose.Types.ObjectId.isValid(recordId)) {
     sendFailureResponse({
@@ -228,7 +228,7 @@ const handlePutRequest = async ({
   const { id } = req.params;
   checkValidation({ req, res, model, bodyData, requiredFields });
   if (id) {
-    await isNotFoundByID({ req, res, model, id, entity });
+    await findById({ req, res, model, id, entity });
     await isAlreadyExistById({ req, res, model, id, entity, bodyData });
   }
 };
@@ -247,7 +247,7 @@ const verifyToken = (req, res) => {
 
 const getUserFromToken = async (req, res) => {
   const decoded = await verifyToken(req, res);
-  return await isNotFoundByID({ req, res, model: UserModel, id: decoded.id, entity: 'User' })
+  return await findById({ req, res, model: UserModel, id: decoded.id, entity: 'User' })
 }
 
 const handleCloudinaryFiles = async (req) => {
@@ -315,7 +315,7 @@ module.exports = {
   sendSuccessResponse,
   sendFailureResponse,
   checkValidation,
-  isNotFoundByID,
+  findById,
   isAlreadyExistById,
   handlePutRequest,
   recordNotFound,

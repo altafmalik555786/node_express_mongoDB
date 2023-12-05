@@ -3,7 +3,7 @@ const { MSG_DELETED } = require("../../utils/const");
 const {
   sendSuccessResponse,
   handlePutRequest,
-  isNotFoundByID,
+  findById,
 } = require("../../utils/helper/api");
 const { handleCatchedError } = require("../../utils/helper/common");
 
@@ -19,7 +19,7 @@ const getAllUsers = async (req, res) => {
 const getSingleUser = async (req, res) => {
   try {
     const { id } = req?.body;
-    await isNotFoundByID({ req, res, model: UserModel, entity: 'User' })
+    await findById({ req, res, model: UserModel, entity: 'User' })
     const data = await UserModel.findById(id);
     sendSuccessResponse({ res, data });
   } catch (error) {
@@ -50,7 +50,7 @@ const updateUser = async (req, res) => {
 const deleteUser = async (req, res) => {
   try {
     const userId = req.params.id;
-    await isNotFoundByID({ req, res, model: UserModel, entity: "User" });
+    await findById({ req, res, model: UserModel, entity: "User" });
     const data = await UserModel.findByIdAndDelete(userId);
     return sendSuccessResponse({ res, message: MSG_DELETED("User"), data });
   } catch (error) {

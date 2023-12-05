@@ -6,6 +6,7 @@ const { postCreatePosts, getAllPosts, deletePosts, postLikePost } = require("../
 const { authMiddleware } = require("../../middlewares/auth");
 const { accessPermissionMiddleware } = require("../../middlewares/access-permission");
 const { userRoles } = require("../../utils/json");
+const { ROUTE_PARAM_SLASH_ID } = require("../../utils/const");
 
 router.post(`${endPoints?.posts}`, authMiddleware, postCreatePosts);
 router.get(`${endPoints?.posts}`, authMiddleware, getAllPosts);
@@ -16,7 +17,7 @@ router.delete(`${endPoints?.posts}`,
         entity: "Post"
     }),
     authMiddleware, deletePosts);
-router.post(`${endPoints?.likePost}`, authMiddleware, postLikePost);
+router.post(`${endPoints?.likePost}${ROUTE_PARAM_SLASH_ID}`, authMiddleware, postLikePost);
 
 
 module.exports = { postsRouter: router };

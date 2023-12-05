@@ -1,5 +1,5 @@
 const { MSG_FORBIDDEN } = require("../../utils/const");
-const { getUserFromToken, getId, sendFailureResponse, isNotFoundByID } = require("../../utils/helper/api");
+const { getUserFromToken, getId, sendFailureResponse, findById } = require("../../utils/helper/api");
 const { handleCatchedError } = require("../../utils/helper/common");
 
 ///////// Hints to use ////////
@@ -13,7 +13,7 @@ const accessPermissionMiddleware = ({ model = null, authorizedUser = [], unAutho
     try {
       const user = await getUserFromToken(req, res)
       if (model) {
-        const post = await isNotFoundByID({ req, res, id, model, entity });
+        const post = await findById({ req, res, id, model, entity });
         if (String(post.user) !== getId(user)) {
           return sendFailureResponse({ res, status: 403, message: MSG_FORBIDDEN(req.method?.toLowerCase()) + " Because you didn't created this post." })
         }
