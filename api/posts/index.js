@@ -1,5 +1,5 @@
 const Post = require("../../model/post");
-const { MSG_CREATED, MSG_DELETED } = require("../../utils/const");
+const { MSG_CREATED, MSG_DELETED, CON_IDENTITY } = require("../../utils/const");
 const { checkValidation, sendSuccessResponse, getUserFromToken, handleCloudinaryFiles, getPaginatedData, verifyToken, isNotFoundByID, sendFailureResponse, destoryCloudinaryFiles } = require("../../utils/helper/api");
 const { handleCatchedError } = require("../../utils/helper/common");
 
@@ -40,8 +40,38 @@ const deletePosts = async (req, res) => {
     }
 }
 
+
+const postLikePost = async (req, res) => {
+    try {
+        const { postId } = req.body;
+        console.log(CON_IDENTITY, "postid", postId)
+        const decoded = await verifyToken(req.headers.authorization.split(' ')[1], res); // Authorization: 'Bearer TOKEN'
+        const userId = decoded.id;
+        const post = await Post.findById(postId);
+        if (!post) {
+            return res.status(404).json({ message: 'Post not found' });
+        }
+
+        const isLiked = post.likes.includes(userId);
+
+        if (isLiked) {
+            // User has already liked the post, so we remove the like
+            await post.updateOne({ $pull: { likes: userId } });
+            return res.status(200).json({ success: true, message: 'Post unliked successfully' });
+        } else {
+            // User hasn't liked the post, so we add the like
+            await post.updateOne({ $addToSet: { likes: userId } });
+            return res.status(200).json({ success: true, message: 'Post liked successfully' });
+        }
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
+    }
+};
+
+
 module.exports = {
     postCreatePosts,
     getAllPosts,
-    deletePosts
+    deletePosts,
+    postLikePost
 }
