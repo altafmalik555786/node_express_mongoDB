@@ -3,7 +3,6 @@ const { MSG_CREATED, MSG_DELETED, CON_IDENTITY } = require("../../utils/const");
 const { checkValidation, sendSuccessResponse, getUserFromToken, handleCloudinaryFiles, getPaginatedData, verifyToken, findById, sendFailureResponse, destoryCloudinaryFiles } = require("../../utils/helper/api");
 const { handleCatchedError } = require("../../utils/helper/common");
 
-
 const postCreatePosts = async (req, res) => {
     try {
         const { title, content } = req.body;
@@ -40,31 +39,23 @@ const deletePosts = async (req, res) => {
     }
 }
 
-
 const postLikePost = async (req, res) => {
     try {
-        const { id } = req.params;
-        console.log(CON_IDENTITY, "id", id)
         const decoded = await verifyToken(req, res);
-        const userId = decoded.id;        
+        const userId = decoded.id;
         const post = await findById({ req, res, model: Post, entity: 'Post' })
-
         const isLiked = post.likes.includes(userId);
-
         if (isLiked) {
-            // User has already liked the post, so we remove the like
             await post.updateOne({ $pull: { likes: userId } });
-            return res.status(200).json({ success: true, message: 'Post unliked successfully' });
+            sendSuccessResponse({ res, message: 'Post unliked successfully' })
         } else {
-            // User hasn't liked the post, so we add the like
             await post.updateOne({ $addToSet: { likes: userId } });
-            return res.status(200).json({ success: true, message: 'Post liked successfully' });
+            sendSuccessResponse({ res, message: 'Post liked successfully' })
         }
     } catch (error) {
-        return res.status(500).json({ message: error.message });
+        handleCatchedError({ res, error, at: "postLikePost" })
     }
 };
-
 
 module.exports = {
     postCreatePosts,
