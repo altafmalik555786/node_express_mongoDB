@@ -24,7 +24,7 @@ const constants = {
     MSG_INVALID_EXPIRY: (entityName = "Record") => {
         return `Invalid or expired ${entityName}!`
     },
-    MSG_FORBIDDEN_UNAUTHORIZED_DONT_HAVE_PERMISSION: (action = "") => {
+    MSG_FORBIDDEN: (action = "") => {
         return `Access Forbidden: Unauthorized! You do not have permission to perform this ${action} action`
     },
     CON_IDENTITY: "====================================================="
