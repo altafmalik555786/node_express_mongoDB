@@ -11,6 +11,7 @@ const endPoints = {
   verifyEmail: "/verify/email",
   verifyEmailSuccess: "/verify/email/success",
   likePost: "/like/posts",
+  commentPost: "/comment/posts",
 };
 
 module.exports = {

@@ -2,7 +2,7 @@ const { endPoints } = require("../const/index");
 const Post = require("../../model/post");
 
 const { router } = require("../../utils/instances");
-const { postCreatePosts, getAllPosts, deletePosts, postLikePost } = require("../../api/posts");
+const { postCreatePosts, getAllPosts, deletePosts, postLikePost, postCommontOnPosts } = require("../../api/posts");
 const { authMiddleware } = require("../../middlewares/auth");
 const { accessPermissionMiddleware } = require("../../middlewares/access-permission");
 const { userRoles } = require("../../utils/json");
@@ -18,6 +18,8 @@ router.delete(`${endPoints?.posts}`,
     }),
     authMiddleware, deletePosts);
 router.post(`${endPoints?.likePost}${ROUTE_PARAM_SLASH_ID}`, authMiddleware, postLikePost);
+router.post(`${endPoints?.commentPost}${ROUTE_PARAM_SLASH_ID}`, authMiddleware, postCommontOnPosts);
+
 
 
 module.exports = { postsRouter: router };

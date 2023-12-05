@@ -57,9 +57,34 @@ const postLikePost = async (req, res) => {
     }
 };
 
+const postCommontOnPosts = async (req, res) => {
+    try {
+        const { comment } = req.body;
+        const decoded = await verifyToken(req, res);
+        const userId = decoded.id;
+        const post = await findById({ req, res, model: Post, entity: 'Post' })
+
+
+        // Create the comment object
+        const newComment = {
+            user: userId,
+            text: comment,
+        };
+
+        // Add the comment to the post's comments array
+        post.comments.push(newComment);
+        await post.save();
+
+        return res.status(200).json({ success: true, message: 'Comment added successfully' });
+    } catch (error) {
+        return res.status(500).json({ message: error.message });
+    }
+}
+
 module.exports = {
     postCreatePosts,
     getAllPosts,
     deletePosts,
-    postLikePost
+    postLikePost,
+    postCommontOnPosts,
 }
